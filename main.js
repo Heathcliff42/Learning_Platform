@@ -7,6 +7,7 @@
  */
 
 import promtSync from "prompt-sync";
+import { styleText } from "node:util";
 import { mode } from "./testdata.js";
 import { topic } from "./testdata.js";
 import { questions } from "./testdata.js";
@@ -71,6 +72,33 @@ function getTopic(data) {
   return parseInt(prompt(" > ")) - 1;
 }
 
+function StandardMode(questions){
+  let idx = [];
+  
+  for (let i = 0; i < questions.length; i++) {
+    Math.random() > 0.5 ? idx.push(i) : idx.unshift(i);
+  }
+  
+  console.clear();// moved because the answer got also cleared
+  for (let i = 0; i < questions.length; i++) {
+    console.log(`Question ${i + 1}: ${questions[idx[i]][0]}`);
+    let ans = [];
+    for (let j = 1; j < questions[i].length; j++) {
+      Math.random() > 0.5 ? ans.push(j) : ans.unshift(j);
+    }
+    for (let j = 1; j < questions[i].length; j++) {
+      console.log(` ${j}. ${questions[idx[i]][ans[j - 1]]}`);
+    }
+    let answer = parseInt(prompt(" > "));
+    
+    if (questions[idx[i]][ans[answer - 1]] === questions[idx[i]][1]) {
+      console.log(styleText("green","Correct!"));
+    } else {
+      console.log(styleText("red",`Incorrect! The Right number was ${ans.indexOf(1)+1} with ${questions[idx[i]][1]}`));
+    }
+  }
+}
+
 /*
  * TODO: Read mode-data from database to list
  * return: modeData
@@ -78,35 +106,21 @@ function getTopic(data) {
 
 let modeData = mode;
 let topicData = topic;
-let topicIdx = 0;
+let topicIdx = -1;
 
 console.log("Welcome to the Learning Platform!");
 while (topicIdx === -1) {
   let modeIdx = getMode(modeData);
   topicData = getAvailableTopics(modeData[modeIdx]);
   topicIdx = getTopic(topicData);
-}
+  switch(topicIdx){
+    case 0:
+      StandardMode(questions);
+      break;
 
-let idx = [];
 
-for (let i = 0; i < questions.length; i++) {
-  Math.random() > 0.5 ? idx.push(i) : idx.unshift(i);
-}
-
-for (let i = 0; i < questions.length; i++) {
-  console.clear();
-  console.log(`Question ${i + 1}: ${questions[idx[i]][0]}`);
-  let ans = [];
-  for (let j = 1; j < questions[i].length; j++) {
-    Math.random() > 0.5 ? ans.push(j) : ans.unshift(j);
-  }
-  for (let j = 1; j < questions[i].length; j++) {
-    console.log(` ${j}. ${questions[idx[i]][ans[j - 1]]}`);
-  }
-  let answer = parseInt(prompt(" > "));
-  if (questions[idx[i]][ans[answer - 1]] === questions[idx[i]][1]) {
-    console.log("Correct!");
-  } else {
-    console.log("Incorrect!");
+    default:
+      break;
   }
 }
+
