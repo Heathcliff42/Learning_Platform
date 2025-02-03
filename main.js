@@ -1,26 +1,25 @@
 /*
-    * @Author: Lukas Kroczek
-    * @Date: 2025-02-03
-    * @Description: Learning Platform
-    * @Version: 1.0.0
-    * @LastUpdate: 2025-02-03
-*/
+ * @Author: Lukas Kroczek
+ * @Date: 2025-02-03
+ * @Description: Learning Platform
+ * @Version: 1.0.0
+ * @LastUpdate: 2025-02-03
+ */
 
-import promtSync from 'prompt-sync';
-const PROMPT = promtSync()
+import promtSync from "prompt-sync";
+const PROMPT = promtSync();
 
-function prompt(output){
+function prompt(output) {
     let input = PROMPT(output);
-    if(input === "EXIT"){
+    if (input === "EXIT") {
         console.log("Goodbye");
         process.exit();
     }
-    return input
+    return input;
 }
 
 function getMode(data) {
     console.clear();
-    console.log("Welcome to the Learning Platform!");
     console.log("Please select a mode:");
 
     if (data.length < 9) {
@@ -35,17 +34,17 @@ function getMode(data) {
             console.log(`${i + 1}. ${data[i]}`);
         }
     }
-    
+
     return parseInt(prompt(" > ")) - 1;
 }
 
-function getAvailableTopics(mode){
+function getAvailableTopics(mode) {
     /*
      * TODO: Read available topics from database to list
      * (join tables to get topics for the selected mode)
      * input: mode
      * return: topicData
-    **/
+     **/
 }
 
 function getTopic(data) {
@@ -71,11 +70,13 @@ function getTopic(data) {
 /*
  * TODO: Read mode-data from database to list
  * return: modeData
-**/
+ **/
 
 let modeData = [];
 let topicData = [];
 let topicIdx = -1;
+
+console.log("Welcome to the Learning Platform!");
 
 while (topicIdx === -1) {
     let modeIdx = getMode(modeData);
