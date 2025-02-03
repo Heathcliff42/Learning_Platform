@@ -5,12 +5,6 @@
  * @Version: 1.0.0
  * @LastUpdate: 2025-02-03
  */
- * @Author: Lukas Kroczek
- * @Date: 2025-02-03
- * @Description: Learning Platform
- * @Version: 1.0.0
- * @LastUpdate: 2025-02-03
- */
 
 import promtSync from "prompt-sync";
 import mode from "./testdata.js";
