@@ -74,7 +74,6 @@ function getTopic(data) {
 /*
  * TODO: Read mode-data from database to list
  * return: modeData
- **
  **/
 
 let modeData = mode;
@@ -86,4 +85,28 @@ while (topicIdx === -1) {
   let modeIdx = getMode(modeData);
   topicData = getAvailableTopics(modeData[modeIdx]);
   topicIdx = getTopic(topicData);
+}
+
+let idx = [];
+
+for (let i = 0; i < questions.length; i++) {
+  Math.random() > 0.5 ? idx.push(i) : idx.unshift(i);
+}
+
+for (let i = 0; i < questions.length; i++) {
+  console.clear();
+  console.log(`Question ${i + 1}: ${questions[idx[i]][0]}`);
+  let ans = [];
+  for (let j = 1; j < questions[i].length; j++) {
+    Math.random() > 0.5 ? ans.push(j) : ans.unshift(j);
+  }
+  for (let j = 1; j < questions[i].length; j++) {
+    console.log(` ${j}. ${questions[idx[i]][ans[j - 1]]}`);
+  }
+  let answer = parseInt(prompt(" > "));
+  if (questions[idx[i]][ans[answer - 1]] === questions[idx[i]][1]) {
+    console.log("Correct!");
+  } else {
+    console.log("Incorrect!");
+  }
 }
