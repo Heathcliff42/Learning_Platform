@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Heathcliff42/Learning_Platform/issues"
   },
-  "homepage": "https://github.com/Heathcliff42/Learning_Platform#readme"
+  "homepage": "https://github.com/Heathcliff42/Learning_Platform#readme",
+  "dependencies": {
+    "prompt-sync": "^4.2.0"
+  }
 }
