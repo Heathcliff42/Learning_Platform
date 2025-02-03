@@ -7,9 +7,9 @@
  */
 
 import promtSync from "prompt-sync";
-import mode from "./testdata.js";
-import topic from "./testdata.js";
-import questions from "./testdata.js";
+import { mode } from "./testdata.js";
+import { topic } from "./testdata.js";
+import { questions } from "./testdata.js";
 const PROMPT = promtSync();
 
 function prompt(output) {
@@ -74,7 +74,7 @@ function getTopic(data) {
 /*
  * TODO: Read mode-data from database to list
  * return: modeData
- **/
+ **
  **/
 
 let modeData = mode;
