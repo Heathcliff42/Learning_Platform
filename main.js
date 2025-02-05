@@ -74,29 +74,43 @@ function getTopic(data) {
 
 function StandardMode(questions){
   let idx = [];
+  let success = 0;
   
   for (let i = 0; i < questions.length; i++) {
     Math.random() > 0.5 ? idx.push(i) : idx.unshift(i);
   }
   
-  console.clear();// moved because the answer got also cleared
   for (let i = 0; i < questions.length; i++) {
-    console.log(`Question ${i + 1}: ${questions[idx[i]][0]}`);
     let ans = [];
     for (let j = 1; j < questions[i].length; j++) {
       Math.random() > 0.5 ? ans.push(j) : ans.unshift(j);
     }
+    console.clear(); // moved back because of updated logic
+    console.log(`Question ${i + 1}: ${questions[idx[i]][0]}`);
     for (let j = 1; j < questions[i].length; j++) {
       console.log(` ${j}. ${questions[idx[i]][ans[j - 1]]}`);
     }
-    let answer = parseInt(prompt(" > "));
+    let answer = parseInt(prompt(" > ")) - 1;
     
-    if (questions[idx[i]][ans[answer - 1]] === questions[idx[i]][1]) {
-      console.log(styleText("green","Correct!"));
-    } else {
-      console.log(styleText("red",`Incorrect! The Right number was ${ans.indexOf(1)+1} with ${questions[idx[i]][1]}`));
+    console.clear(); // moved back because of updated logic
+    console.log(`Question ${i + 1}: ${questions[idx[i]][0]}`);
+    for (let j = 1; j < questions[i].length; j++) {
+      if (ans[j - 1] === 1) {
+        console.log(styleText("green",` ${j}. ${questions[idx[i]][ans[j - 1]]}`));
+      } else if (j - 1 === answer) {
+        console.log(styleText("red",` ${j}. ${questions[idx[i]][ans[j - 1]]}`));
+      } else {
+        console.log(` ${j}. ${questions[idx[i]][ans[j - 1]]}`);
+      }
+    }
+    prompt(" Continue ");
+    if (ans[answer] === 1) {
+      success++;
     }
   }
+  console.clear();
+  prompt(`You answered ${success} out of ${questions.length} questions correctly.\nThat is a ${((success / questions.length) * 100).toFixed(2)}% success rate.\nPress Enter to continue...`);
+  console.clear();
 }
 
 /*
@@ -106,21 +120,23 @@ function StandardMode(questions){
 
 let modeData = mode;
 let topicData = topic;
-let topicIdx = -1;
 
-console.log("Welcome to the Learning Platform!");
-while (topicIdx === -1) {
-  let modeIdx = getMode(modeData);
-  topicData = getAvailableTopics(modeData[modeIdx]);
-  topicIdx = getTopic(topicData);
-  switch(topicIdx){
-    case 0:
-      StandardMode(questions);
-      break;
+console.clear();
+prompt("Welcome to the Learning Platform!\nPress Enter to continue...");
 
+while (true) {
+  let topicIdx = -1;
+  while (topicIdx === -1) {
+    let modeIdx = getMode(modeData);
+    topicData = getAvailableTopics(modeData[modeIdx]);
+    topicIdx = getTopic(topicData);
+    }
+    switch(topicIdx){
+      case 0:
+        StandardMode(questions);
+        break;
 
-    default:
-      break;
+      default:
+        break;
   }
 }
-
