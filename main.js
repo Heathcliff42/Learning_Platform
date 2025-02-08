@@ -22,9 +22,9 @@ function prompt(output) {
   return input;
 }
 
-function getMode(data, startIndex = 0) {
+function select(data, additionalOutput, startIndex = 0) {
   console.clear();
-  console.log("Please select a mode:");
+  console.log(additionalOutput);
 
   if (data.length + startIndex < 9) {
     for (let i = 0; i < data.length; i++) {
@@ -57,25 +57,6 @@ function SafeData() {
    *TODO: Save Data
    */
   return;
-}
-function getTopic(data) {
-  console.log("Please select a topic:");
-  console.log(" 0. Choose another mode");
-
-  if (data.length < 9) {
-    for (let i = 0; i < data.length; i++) {
-      console.log(` ${i + 1}. ${data[i]}`);
-    }
-  } else {
-    for (let i = 0; i < 9; i++) {
-      console.log(` ${i + 1}. ${data[i]}`);
-    }
-    for (let i = 9; i < data.length; i++) {
-      console.log(`${i + 1}. ${data[i]}`);
-    }
-  }
-
-  return parseInt(prompt(" > ")) - 1;
 }
 
 function StandardMode(questions) {
@@ -113,7 +94,7 @@ function StandardMode(questions) {
         console.log(` ${j}. ${questions[idx[i]][ans[j - 1]]}`);
       }
     }
-    prompt(" Continue ");
+    prompt(" Continue? ");
     if (ans[answer] === 1) {
       success++;
     }
@@ -142,7 +123,7 @@ function ManagementMode(topicData, questions) {
   let topicIdx;
 
   while (true) {
-    ManagementModeIdex = getMode(ManagementModes, -1);
+    ManagementModeIdex = select(ManagementModes, "Please select a mode:", -1);
 
     if (ManagementModeIdex === -1) {
       break; // Beenden der schleife
@@ -152,7 +133,7 @@ function ManagementMode(topicData, questions) {
         break;
 
       case 1:
-        topicIdx = getTopic(topicData);
+        topicIdx = select(topicData);
         topicData[topicIdx] = prompt(
           `new Category name for ${topicData[topicIdx]}: `
         );
@@ -173,22 +154,32 @@ function ManagementMode(topicData, questions) {
  * return: modeData
  **/
 
-let modeData = mode;
+let modeData = ["Leave the Platform"].concat(mode);
 let topicData = topic;
 
 console.clear();
-prompt("Welcome to the Learning Platform!\nPress Enter to continue...");
+prompt(
+  `Welcome to the Learning Platform!\nYou can always Exit the programm with: "${styleText(
+    "red",
+    "EXIT"
+  )}"! \nPress Enter to continue...`
+);
+
+let topicIdx = -1;
+let modeIdx = -1;
 
 while (true) {
-  let topicIdx = -1;
-  let modeIdx = -1;
-  while (modeIdx === -1) {
-    modeIdx = getMode(modeData);
-    topicData = getAvailableTopics(modeData[modeIdx]);
+  modeIdx = select(modeData, "Please select a mode:", -1);
+  topicData = getAvailableTopics(modeData[modeIdx]);
+  if (modeIdx === -1) {
+    //programm beenden
+    console.clear();
+    console.log("Goodbye");
+    break;
   }
   switch (modeIdx) {
     case 0:
-      topicIdx = getTopic(topicData);
+      topicIdx = select(topicData, "Please select a topic:");
       StandardMode(questions);
       break;
 
