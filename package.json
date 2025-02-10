@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Heathcliff42/Learning_Platform#readme",
   "dependencies": {
+    "inquirer": "^12.4.1",
     "prompt-sync": "^4.2.0"
   }
 }

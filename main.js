@@ -11,6 +11,7 @@ import { styleText } from "node:util";
 import { mode } from "./testdata.js";
 import { topic } from "./testdata.js";
 import { questions } from "./testdata.js";
+import { displaySelectionMenu } from "./displaySelectionMenu.js";
 const PROMPT = promtSync();
 
 function prompt(output) {
@@ -20,26 +21,6 @@ function prompt(output) {
     process.exit();
   }
   return input;
-}
-
-function select(data, additionalOutput, startIndex = 0) {
-  console.clear();
-  console.log(additionalOutput);
-
-  if (data.length + startIndex < 9) {
-    for (let i = 0; i < data.length; i++) {
-      console.log(` ${i + 1 + startIndex}. ${data[i]}`);
-    }
-  } else {
-    for (let i = 0; i < 9; i++) {
-      console.log(` ${i + 1 + startIndex}. ${data[i]}`);
-    }
-    for (let i = 9; i < data.length; i++) {
-      console.log(`${i + 1 + startIndex}. ${data[i]}`);
-    }
-  }
-
-  return parseInt(prompt(" > ")) - 1;
 }
 
 function getAvailableTopics(mode) {
@@ -123,7 +104,11 @@ function ManagementMode(topicData, questions) {
   let topicIdx;
 
   while (true) {
-    ManagementModeIdex = select(ManagementModes, "Please select a mode:", -1);
+    ManagementModeIdex = displaySelectionMenu(
+      ManagementModes,
+      "Please select a mode:",
+      -1
+    );
 
     if (ManagementModeIdex === -1) {
       break; // Beenden der schleife
@@ -133,7 +118,7 @@ function ManagementMode(topicData, questions) {
         break;
 
       case 1:
-        topicIdx = select(topicData);
+        topicIdx = displaySelectionMenu(topicData);
         topicData[topicIdx] = prompt(
           `new Category name for ${topicData[topicIdx]}: `
         );
@@ -169,7 +154,7 @@ let topicIdx = -1;
 let modeIdx = -1;
 
 while (true) {
-  modeIdx = select(modeData, "Please select a mode:", -1);
+  modeIdx = displaySelectionMenu(modeData, "Please select a mode:", -1);
   topicData = getAvailableTopics(modeData[modeIdx]);
   if (modeIdx === -1) {
     //programm beenden
@@ -179,7 +164,7 @@ while (true) {
   }
   switch (modeIdx) {
     case 0:
-      topicIdx = select(topicData, "Please select a topic:");
+      topicIdx = displaySelectionMenu(topicData, "Please select a topic:");
       StandardMode(questions);
       break;
 
