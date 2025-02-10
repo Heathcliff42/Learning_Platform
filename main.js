@@ -9,21 +9,16 @@
 
 import promtSync from "prompt-sync";
 import { styleText } from "node:util";
-<<<<<<< HEAD
-import { mode } from "./testdata.js";
-import { topic } from "./testdata.js";
-import { questions } from "./testdata.js";
 import { displaySelectionMenu } from "./displaySelectionMenu.js";
-=======
 import { mode, topic, questions } from "./testdata.js";
->>>>>>> bdaad2927eddc5452781ac932b9a28a22400f428
 const PROMPT = promtSync();
 
 function prompt(output) {
   let input = PROMPT(output);
   if (input === "EXIT") {
     console.clear();
-    console.log("Goodbye");
+    PROMPT("Goodbye");
+    console.clear();
     process.exit();
   }
   return input;
@@ -156,7 +151,8 @@ function ManagementMode(topicData, questions) {
  * return: modeData
  **/
 
-let modeData = ["Leave the Platform"].concat(mode);
+let operationData = ["Learning Mode", "Management Mode"];
+let modeData = mode;
 let topicData = topic;
 
 console.clear();
@@ -173,29 +169,27 @@ let operatingIdx;
 let indexOutOfRange;
 
 while (true) {
-<<<<<<< HEAD
-  modeIdx = displaySelectionMenu(modeData, "Please select a mode:", -1);
-  topicData = getAvailableTopics(modeData[modeIdx]);
-  if (modeIdx === -1) {
-    //programm beenden
-    console.clear();
-    console.log("Goodbye");
-    break;
-  }
-  switch (modeIdx) {
-    case 0:
-      topicIdx = displaySelectionMenu(topicData, "Please select a topic:");
-      StandardMode(questions);
-      break;
-
-=======
-  operatingIdx = select(modeData, "Please select an operation mode:");
+  operatingIdx = displaySelectionMenu(
+    operationData,
+    "Please select an operation mode:\n 0. Exit"
+  );
   switch (operatingIdx) {
+    case -1:
+      console.clear();
+      PROMPT("Goodbye");
+      console.clear();
+      process.exit();
     case 0:
       while (true) {
         indexOutOfRange = true;
         while (indexOutOfRange) {
-          modeIdx = select(modeData, "Please select a mode:");
+          modeIdx = select(
+            modeData,
+            "Please select a mode:\n 0. Choose another mode of operation"
+          );
+          if (modeIdx === -1) {
+            break;
+          }
           topicData = getAvailableTopics(modeData[modeIdx]);
           topicIdx = select(
             topicData,
@@ -203,6 +197,9 @@ while (true) {
           );
           indexOutOfRange =
             0 <= topicIdx && topicIdx < topicData.length ? false : true;
+        }
+        if (modeIdx === -1) {
+          break;
         }
         switch (modeIdx) {
           case 0:
@@ -222,7 +219,7 @@ while (true) {
             break;
         }
       }
->>>>>>> bdaad2927eddc5452781ac932b9a28a22400f428
+      break;
     case 1:
       ManagementMode(topicData, questions);
       break;

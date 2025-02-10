@@ -1,4 +1,4 @@
-export let mode = ["Standard", "Management"];
+export let mode = ["Multiple Choice"];
 export let topic = ["Geography"];
 export let questions = [
   ["What is the capital of France?", "Paris", "Lyon", "Marseille", "Nice"],
