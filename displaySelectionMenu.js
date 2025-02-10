@@ -1,9 +1,9 @@
 import Inquirer from "inquirer";
-export { displaySelectionMenu };
 import promtSync from "prompt-sync";
-const prompt = promtSync();
+import { prompt } from "./main.js";
+export { displaySelectionMenu };
 
-function displaySelectionMenu(data, Message, startIndex) {
+function displaySelectionMenu(data, Message, startIndex = 0) {
   //TODO The Inquirers make the code stop without using async/await, callback or promise because they make the code overcomplicated
   //I sat there for almost 3 hours trying to find a solution but I didn't really find anything
 

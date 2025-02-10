@@ -6,7 +6,7 @@
  * @Version: 1.0.2
  * @LastUpdate: 2025-02-10
  */
-
+export { prompt };
 import promtSync from "prompt-sync";
 import { styleText } from "node:util";
 import { displaySelectionMenu } from "./displaySelectionMenu.js";
@@ -183,7 +183,7 @@ while (true) {
       while (true) {
         indexOutOfRange = true;
         while (indexOutOfRange) {
-          modeIdx = select(
+          modeIdx = displaySelectionMenu(
             modeData,
             "Please select a mode:\n 0. Choose another mode of operation"
           );
@@ -191,7 +191,7 @@ while (true) {
             break;
           }
           topicData = getAvailableTopics(modeData[modeIdx]);
-          topicIdx = select(
+          topicIdx = displaySelectionMenu(
             topicData,
             "Please select a topic:\n 0. Choose another mode"
           );
