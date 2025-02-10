@@ -1,28 +1,73 @@
-<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>260</x><y>190</y><w>100</w><h>40</h></coordinates><panel_attributes>Topic</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>440</x><y>190</y><w>100</w><h>40</h></coordinates><panel_attributes>Mode</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>350</x><y>200</y><w>110</w><h>40</h></coordinates><panel_attributes>lt=-
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>330</x><y>110</y><w>100</w><h>40</h></coordinates><panel_attributes>Topic</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>510</x><y>110</y><w>100</w><h>40</h></coordinates><panel_attributes>Mode</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>420</x><y>120</y><w>110</w><h>40</h></coordinates><panel_attributes>lt=-
 m1=n
-m2=m</panel_attributes><additional_attributes>10;10;90;10</additional_attributes></element><element><id>UMLNote</id><coordinates><x>150</x><y>340</y><w>510</w><h>80</h></coordinates><panel_attributes>Jedes Topic ist in mehreren Modes verfügbar
+m2=m</panel_attributes><additional_attributes>10;10;90;10</additional_attributes></element><element><id>UMLNote</id><coordinates><x>220</x><y>260</y><w>510</w><h>80</h></coordinates><panel_attributes>Jedes Topic ist in mehreren Modes verfügbar
 Jeder Mode hat mehrere verfügbare Topics
 Jede Frage/Aufgabe kann für mindestens ein Topic-Modus-paar genutzt werden
-In Available ist jedes Topic-Mode paar gespeichert</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>350</x><y>290</y><w>100</w><h>40</h></coordinates><panel_attributes>Question/Task</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>410</x><y>220</y><w>120</w><h>90</h></coordinates><panel_attributes>lt=-
+In Available ist jedes Topic-Mode paar gespeichert</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>420</x><y>210</y><w>100</w><h>40</h></coordinates><panel_attributes>Question/Task</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>480</x><y>140</y><w>120</w><h>90</h></coordinates><panel_attributes>lt=-
 m1=n
-m2=1..m</panel_attributes><additional_attributes>10;70;10;40;80;40;80;10</additional_attributes></element><element><id>Relation</id><coordinates><x>300</x><y>220</y><w>110</w><h>90</h></coordinates><panel_attributes>lt=-
+m2=1..m</panel_attributes><additional_attributes>10;70;10;40;80;40;80;10</additional_attributes></element><element><id>Relation</id><coordinates><x>370</x><y>140</y><w>110</w><h>90</h></coordinates><panel_attributes>lt=-
 m1=1..m
-m2=n</panel_attributes><additional_attributes>10;10;10;40;80;40;80;70</additional_attributes></element><element><id>UMLClass</id><coordinates><x>350</x><y>90</y><w>100</w><h>40</h></coordinates><panel_attributes>Available</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>300</x><y>120</y><w>110</w><h>90</h></coordinates><panel_attributes>lt=-
+m2=n</panel_attributes><additional_attributes>10;10;10;40;80;40;80;70</additional_attributes></element><element><id>UMLClass</id><coordinates><x>420</x><y>10</y><w>100</w><h>40</h></coordinates><panel_attributes>Available</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>370</x><y>40</y><w>110</w><h>90</h></coordinates><panel_attributes>lt=-
 m1=1
-m2=n</panel_attributes><additional_attributes>10;70;10;40;80;40;80;10</additional_attributes></element><element><id>Relation</id><coordinates><x>410</x><y>120</y><w>110</w><h>90</h></coordinates><panel_attributes>lt=-
+m2=n</panel_attributes><additional_attributes>10;70;10;40;80;40;80;10</additional_attributes></element><element><id>Relation</id><coordinates><x>480</x><y>40</y><w>110</w><h>90</h></coordinates><panel_attributes>lt=-
 m1=n
-m2=1</panel_attributes><additional_attributes>10;10;10;40;80;40;80;70</additional_attributes></element><element><id>UMLClass</id><coordinates><x>140</x><y>80</y><w>530</w><h>350</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>690</x><y>280</y><w>210</w><h>90</h></coordinates><panel_attributes>SELECT T.name
+m2=1</panel_attributes><additional_attributes>10;10;10;40;80;40;80;70</additional_attributes></element><element><id>UMLClass</id><coordinates><x>210</x><y>0</y><w>530</w><h>350</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>760</x><y>200</y><w>210</w><h>90</h></coordinates><panel_attributes>SELECT T.name
 FROM Topic T, Mode M, Available A
 WHERE T.tid = A.tid
       AND A.mid = M.mid
-      AND M.name = &lt;mode&gt;;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>690</x><y>380</y><w>100</w><h>40</h></coordinates><panel_attributes>SELECT name
-FROM Mode;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>910</x><y>280</y><w>170</w><h>40</h></coordinates><panel_attributes>INSERT INTO Mode (name)
-VALUES (&lt;mode&gt;);</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>910</x><y>330</y><w>170</w><h>40</h></coordinates><panel_attributes>INSERT INTO Topic (name)
-VALUES (&lt;topic&gt;);</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>690</x><y>120</y><w>340</w><h>70</h></coordinates><panel_attributes>CREATE TABLE Topic (
+      AND M.name = &lt;mode&gt;;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>760</x><y>300</y><w>100</w><h>40</h></coordinates><panel_attributes>SELECT name
+FROM Mode;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>980</x><y>200</y><w>170</w><h>40</h></coordinates><panel_attributes>INSERT INTO Mode (name)
+VALUES (&lt;mode&gt;);</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>980</x><y>250</y><w>170</w><h>40</h></coordinates><panel_attributes>INSERT INTO Topic (name)
+VALUES (&lt;topic&gt;);</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>760</x><y>40</y><w>340</w><h>70</h></coordinates><panel_attributes>CREATE TABLE Topic (
   tid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   name VARCHAR(70),
-);</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>690</x><y>200</y><w>340</w><h>70</h></coordinates><panel_attributes>CREATE TABLE Mode (
+);</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>760</x><y>120</y><w>340</w><h>70</h></coordinates><panel_attributes>CREATE TABLE Mode (
   mid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   name VARCHAR(70),
-);</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>680</x><y>80</y><w>410</w><h>350</h></coordinates><panel_attributes>Datenbankbefehle
---</panel_attributes><additional_attributes></additional_attributes></element></diagram>
+);</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>750</x><y>0</y><w>410</w><h>350</h></coordinates><panel_attributes>Datenbankbefehle
+--</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>540</x><y>380</y><w>20</w><h>20</h></coordinates><panel_attributes>type=initial</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>530</x><y>550</y><w>40</w><h>40</h></coordinates><panel_attributes>type=decision</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>440</x><y>550</y><w>110</w><h>40</h></coordinates><panel_attributes>lt=&lt;-
+fg=green
+[learning]</panel_attributes><additional_attributes>10;20;90;20</additional_attributes></element><element><id>UMLState</id><coordinates><x>470</x><y>440</y><w>160</w><h>40</h></coordinates><panel_attributes>Choose mode of operation
+bg=blue</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>540</x><y>470</y><w>30</w><h>100</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;80;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>540</x><y>390</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>560</x><y>550</y><w>100</w><h>40</h></coordinates><panel_attributes>lt=&lt;-
+fg=green
+[editing]</panel_attributes><additional_attributes>80;20;10;20</additional_attributes></element><element><id>UMLState</id><coordinates><x>640</x><y>550</y><w>120</w><h>40</h></coordinates><panel_attributes>Choose what to edit
+bg=blue</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>620</x><y>440</y><w>310</w><h>200</h></coordinates><panel_attributes>lt=&lt;-
+fg=yellow
+[other operation]</panel_attributes><additional_attributes>10;20;250;20;250;180;180;180</additional_attributes></element><element><id>UMLState</id><coordinates><x>290</x><y>550</y><w>160</w><h>40</h></coordinates><panel_attributes>Choose what mode to play
+bg=blue</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>220</x><y>440</y><w>270</w><h>200</h></coordinates><panel_attributes>lt=&lt;-
+fg=yellow
+[other operation]</panel_attributes><additional_attributes>250;20;30;20;30;180;40;180</additional_attributes></element><element><id>Relation</id><coordinates><x>290</x><y>580</y><w>60</w><h>60</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;40;40;40;40;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>260</x><y>600</y><w>40</w><h>40</h></coordinates><panel_attributes>type=decision</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>250</x><y>510</y><w>140</w><h>110</h></coordinates><panel_attributes>lt=&lt;-
+fg=orange
+[invalid mode]</panel_attributes><additional_attributes>120;40;120;20;30;20;30;90</additional_attributes></element><element><id>Relation</id><coordinates><x>270</x><y>630</y><w>100</w><h>80</h></coordinates><panel_attributes>lt=&lt;-
+fg=green
+[valid mode]</panel_attributes><additional_attributes>10;60;10;10</additional_attributes></element><element><id>UMLState</id><coordinates><x>230</x><y>690</y><w>100</w><h>40</h></coordinates><panel_attributes>Choose topic
+bg=blue</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>360</x><y>580</y><w>100</w><h>130</h></coordinates><panel_attributes>lt=&lt;-
+fg=yellow
+[other mode]</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>350</x><y>690</y><w>40</w><h>40</h></coordinates><panel_attributes>type=decision</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>320</x><y>700</y><w>50</w><h>30</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>30;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>380</x><y>690</y><w>100</w><h>60</h></coordinates><panel_attributes>lt=&lt;-
+fg=green
+[valid topic]</panel_attributes><additional_attributes>70;40;70;20;10;20</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>540</x><y>660</y><w>20</w><h>20</h></coordinates><panel_attributes>type=final</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLState</id><coordinates><x>400</x><y>730</y><w>100</w><h>40</h></coordinates><panel_attributes>Quiz
+bg=#9b00ff</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>400</x><y>580</y><w>130</w><h>220</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;10;40;110;40;110;200;50;200;50;190</additional_attributes></element><element><id>Relation</id><coordinates><x>270</x><y>720</y><w>120</w><h>60</h></coordinates><panel_attributes>lt=&lt;-
+fg=orange
+[invalid topic]</panel_attributes><additional_attributes>10;10;10;40;100;40;100;10</additional_attributes></element><element><id>Relation</id><coordinates><x>710</x><y>580</y><w>70</w><h>60</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>50;40;10;40;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>760</x><y>600</y><w>40</w><h>40</h></coordinates><panel_attributes>type=decision</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>750</x><y>560</y><w>130</w><h>60</h></coordinates><panel_attributes>lt=&lt;-
+fg=orange
+[invalid input]</panel_attributes><additional_attributes>10;10;30;10;30;40</additional_attributes></element><element><id>Relation</id><coordinates><x>770</x><y>630</y><w>100</w><h>70</h></coordinates><panel_attributes>lt=&lt;-
+fg=green
+[valid input]</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>UMLState</id><coordinates><x>730</x><y>680</y><w>100</w><h>40</h></coordinates><panel_attributes>Edit
+bg=#9b00ff</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>670</x><y>580</y><w>130</w><h>170</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;10;150;110;150;110;140</additional_attributes></element><element><id>Relation</id><coordinates><x>540</x><y>580</y><w>60</w><h>100</h></coordinates><panel_attributes>lt=&lt;-
+fg=red
+[exit]</panel_attributes><additional_attributes>10;80;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>550</x><y>620</y><w>240</w><h>70</h></coordinates><panel_attributes>lt=&lt;-
+fg=red
+[exit]</panel_attributes><additional_attributes>10;50;90;50;90;20;210;20;220;10</additional_attributes></element><element><id>Relation</id><coordinates><x>370</x><y>670</y><w>200</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
+fg=red
+[exit]</panel_attributes><additional_attributes>180;10;180;30;120;30;120;20;20;20;10;30</additional_attributes></element><element><id>Relation</id><coordinates><x>280</x><y>620</y><w>280</w><h>70</h></coordinates><panel_attributes>lt=&lt;-
+fg=red
+[exit]</panel_attributes><additional_attributes>260;50;80;50;80;20;20;20;10;10</additional_attributes></element><element><id>UMLNote</id><coordinates><x>900</x><y>510</y><w>240</w><h>160</h></coordinates><panel_attributes>Colorcode:
+  Boxes:
+    blue: choice
+    purple: activity
+  Arrows:
+    red: exit program
+    orange: invalid input, try again
+    yellow: switch parent choice
+    green: continue in program (intended)
+    rest: implicit</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>210</x><y>360</y><w>950</w><h>440</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element></diagram>
