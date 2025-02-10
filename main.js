@@ -8,14 +8,13 @@
 
 import promtSync from "prompt-sync";
 import { styleText } from "node:util";
-import { mode } from "./testdata.js";
-import { topic } from "./testdata.js";
-import { questions } from "./testdata.js";
+import { mode, topic, questions } from "./testdata.js";
 const PROMPT = promtSync();
 
 function prompt(output) {
   let input = PROMPT(output);
   if (input === "EXIT") {
+    console.clear();
     console.log("Goodbye");
     process.exit();
   }
@@ -46,15 +45,26 @@ function getAvailableTopics(mode) {
   /*
    * TODO: Read available topics from database to list
    * (join tables to get topics for the selected mode)
-   * input: mode
-   * return: topicData
+   * input:
+   *   mode: string
+   *     (selected mode)
+   * return:
+   *   topicData: array of strings
+   *     (topics available for the selected mode)
    **/
   return topic;
 }
 
-function SafeData() {
+function SaveData() {
   /*
-   *TODO: Save Data
+   * TODO: Save Data
+   *
+   * Create a new category/question:
+   * INSERT INTO Category/Question (column1, column2, column3, ...) VALUES (value1, value2, value3, ...);
+   * 
+   * Rename/Edit a category/question:
+   * UPDATE Category/Question SET column1 = value1, column2 = value2, ...;
+   * 
    */
   return;
 }
@@ -114,10 +124,10 @@ function StandardMode(questions) {
 function ManagementMode(topicData, questions) {
   const ManagementModes = [
     "Exit ManagementMode",
-    "new Categorie",
+    "Create new Categorie",
     "Rename Category",
-    "Eddit Questions and Answers",
-    "Generate Questions and Answers through AI ",
+    "Edit Questions and Answers",
+    "Generate Questions and Answers through AI",
   ];
   let ManagementModeIdex;
   let topicIdx;
@@ -135,9 +145,9 @@ function ManagementMode(topicData, questions) {
       case 1:
         topicIdx = select(topicData);
         topicData[topicIdx] = prompt(
-          `new Category name for ${topicData[topicIdx]}: `
+          `New Category name for ${topicData[topicIdx]}: `
         );
-        SafeData();
+        SaveData();
         break;
 
       case 2:
@@ -166,28 +176,101 @@ prompt(
 );
 
 let topicIdx = -1;
-let modeIdx = -1;
+let modeIdx  = -1;
+let operatingIdx;
+let indexOutOfRange;
 
 while (true) {
-  modeIdx = select(modeData, "Please select a mode:", -1);
-  topicData = getAvailableTopics(modeData[modeIdx]);
-  if (modeIdx === -1) {
-    //programm beenden
-    console.clear();
-    console.log("Goodbye");
-    break;
-  }
-  switch (modeIdx) {
+  operatingIdx = select(modeData, "Please select an operation mode:");
+  switch (operatingIdx) {
     case 0:
-      topicIdx = select(topicData, "Please select a topic:");
-      StandardMode(questions);
-      break;
-
+      while (true) {
+        indexOutOfRange = true;
+        while (indexOutOfRange) {
+          modeIdx   = select(modeData, "Please select a mode:");
+          topicData = getAvailableTopics(modeData[modeIdx]);
+          topicIdx  = select(topicData, "Please select a topic:\n 0. Choose another mode");
+          indexOutOfRange = (0 <= topicIdx && topicIdx < topicData.length) ? false : true;
+        }
+        switch (modeIdx) {
+          case 0:
+            StandardMode(questions);
+            break;
+          case 1:
+            // Gap Text Mode
+            break;
+          case 2:
+            // Flashcard Mode
+            break;
+          case 3:
+            // AI-Chat Mode
+            break;
+          default:
+            // Index out of range, try again or exit
+            break;
+        }
+      }
     case 1:
       ManagementMode(topicData, questions);
       break;
-
     default:
+      // Index out of range, try again or exit
       break;
   }
 }
+
+/*
+while (true) {
+  operationidx = select operation mode
+  switch (operationidx) {
+    case 0:
+      while (true) {
+        topicidx = -1
+        while (topicidx === -1) {
+          modeidx = select mode
+          topicdata = getAvailableTopics(modedata[modeidx])
+          topicidx = select topicdata
+        }
+        switch (modeidx) {
+          case 0:
+            start multiple choice with questions of topic[topicidx]
+            break
+          case 1:
+            start gap text with questions of topic[topicidx]
+            break
+          default:
+            index out of range, try again or exit
+            break
+        }
+      }
+      break
+    case 1:
+      while (true) {
+        manageidx = select management mode
+        switch (manageidx) {
+          case 0:
+            Create a new category and save it
+            break
+          case 1:
+            Rename a category and save it
+            break
+          case 2:
+            Edit questions and answers and save them
+            break
+          case 3:
+            Generate questions and answers through AI and save them
+            break
+          case >= 4:
+            Somthing else
+            break
+          default:
+            break
+        }
+      }
+      break
+    default:
+      process.exit()
+      break
+  }
+}
+*/
