@@ -1,9 +1,10 @@
 /*
  * @Author: Lukas Kroczek
+ * @Author: Julian Scharf
  * @Date: 2025-02-03
  * @Description: Learning Platform
- * @Version: 1.0.0
- * @LastUpdate: 2025-02-03
+ * @Version: 1.0.2
+ * @LastUpdate: 2025-02-10
  */
 
 import promtSync from "prompt-sync";
@@ -61,10 +62,10 @@ function SaveData() {
    *
    * Create a new category/question:
    * INSERT INTO Category/Question (column1, column2, column3, ...) VALUES (value1, value2, value3, ...);
-   * 
+   *
    * Rename/Edit a category/question:
    * UPDATE Category/Question SET column1 = value1, column2 = value2, ...;
-   * 
+   *
    */
   return;
 }
@@ -176,7 +177,7 @@ prompt(
 );
 
 let topicIdx = -1;
-let modeIdx  = -1;
+let modeIdx = -1;
 let operatingIdx;
 let indexOutOfRange;
 
@@ -187,10 +188,14 @@ while (true) {
       while (true) {
         indexOutOfRange = true;
         while (indexOutOfRange) {
-          modeIdx   = select(modeData, "Please select a mode:");
+          modeIdx = select(modeData, "Please select a mode:");
           topicData = getAvailableTopics(modeData[modeIdx]);
-          topicIdx  = select(topicData, "Please select a topic:\n 0. Choose another mode");
-          indexOutOfRange = (0 <= topicIdx && topicIdx < topicData.length) ? false : true;
+          topicIdx = select(
+            topicData,
+            "Please select a topic:\n 0. Choose another mode"
+          );
+          indexOutOfRange =
+            0 <= topicIdx && topicIdx < topicData.length ? false : true;
         }
         switch (modeIdx) {
           case 0:
