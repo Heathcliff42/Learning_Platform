@@ -1,3 +1,5 @@
+import { Database } from './data/database.js';
+
 export let mode = ["Multiple Choice"];
 export let topic = ["Geography"];
 export let questions = [
@@ -237,3 +239,19 @@ export let questions = [
   ],
   ["What is the capital of Kosovo?", "Pristina", "Prizren", "Peć", "Mitrovica"],
 ];
+
+// Function to save questions to database
+export async function saveQuestionsToDatabase() {
+    const db = new Database();
+    try {
+        await db.saveQuestions(questions, topic[0], mode[0]);
+        console.log('Questions saved successfully');
+    } catch (error) {
+        console.error('Error saving questions:', error);
+    } finally {
+        db.close();
+    }
+}
+
+// Automatically save questions when this module is imported
+saveQuestionsToDatabase();
