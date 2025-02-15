@@ -1,21 +1,35 @@
 import Inquirer from "inquirer";
+import promtSync from "prompt-sync";
 export { displaySelectionMenu };
+export { prompt };
+const PROMPT = promtSync();
+
+function prompt(output) {
+  let input = PROMPT(output);
+  if (input === "EXIT") {
+    console.clear();
+    PROMPT("Goodbye");
+    console.clear();
+    process.exit();
+  }
+  return input;
+}
 
 async function displaySelectionMenu(data, Message, startIndex = 0) {
   console.clear();
   const choices = data.map((item, index) => ({
     name: `${index + 1 + startIndex}. ${item}`,
-    value: index
+    value: index,
   }));
   const answer = await Inquirer.prompt([
     {
       type: "list",
       name: "selection",
       message: Message,
-      choices: choices
-    }
+      choices: choices,
+    },
   ]);
-  return answer.selection;
+  return answer.selection + startIndex;
 }
 /*
 let questions = [
