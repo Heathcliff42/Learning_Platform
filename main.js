@@ -11,8 +11,33 @@ import { styleText } from "node:util";
 import { displaySelectionMenu, prompt } from "./displaySelectionMenu.js";
 import { LearningMode } from "./LearningMode.js";
 import { ManagementMode } from "./ManagmentMode.js";
-import promtSync from "prompt-sync";
-const PROMPT = promtSync();
+import { MyDatabase } from "./data/database.js";
+import { mode, topic, questions } from "./data/testdata.js";
+import { _mode, _topic, _question } from "./data/questions.js";
+const db = new MyDatabase();
+
+async function databaseSetup() {
+  db.initDatabase();
+  await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
+  console.log("Database setup completed!");
+  db.getOrCreateMode(mode[0]);
+  await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
+  console.log("Mode setup completed!");
+  db.getOrCreateTopic(topic[0]);
+  await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
+  _topic.forEach((element) => {
+    db.getOrCreateTopic(element);
+  });
+  await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
+  console.log("Topic setup completed!");
+  db.saveQuestions(questions, topic[0], mode[0]);
+  await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
+  for (let i = 0; i < _topic.length; i++) {
+    await db.saveQuestions(_question[i], _topic[i], mode[0]);
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
+  }
+  console.log("Questions setup completed!");
+}
 
 /*
  * TODO: Read mode-data from database to list
@@ -23,10 +48,10 @@ async function main() {
 
   console.clear();
   prompt(
-    `Welcome to the Learning Platform!\nYou can always Exit the programm with: "${styleText(
+    `Welcome to the Learning Platform!\nYou can always exit the programm by typing: "${styleText(
       "red",
       "EXIT"
-    )}"! \nPress Enter to continue...`
+    )}"! \nPress [Enter] to continue...`
   );
 
   // let topicIdx = -1;
@@ -43,15 +68,15 @@ async function main() {
     switch (operatingIdx) {
       case -1:
         console.clear();
-        console.log("closing...");
+        console.log("Closing...");
         await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
         console.clear();
         process.exit();
       case 0:
-        await LearningMode();
+        await LearningMode(db);
         break;
       case 1:
-        await ManagementMode();
+        await ManagementMode(db);
         break;
       default:
         // Index out of range, try again or exit
@@ -60,7 +85,13 @@ async function main() {
   }
 }
 
-main();
+await db.reset();
+
+await databaseSetup();
+
+//main();
+
+db.close();
 
 /*
 while (true) {

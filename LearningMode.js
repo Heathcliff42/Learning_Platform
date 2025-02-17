@@ -1,19 +1,14 @@
 import { styleText } from "node:util";
 import { displaySelectionMenu, prompt } from "./displaySelectionMenu.js";
-import {
-  getAvailableTopics,
-  getModeData,
-  getQuestions,
-} from "./data/database.js";
 
 export { LearningMode };
 
-async function LearningMode() {
+async function LearningMode(db) {
   let indexOutOfRange;
   let topicIdx = -1;
   let modeIdx = -1;
   let topicData;
-  const modeData = getModeData();
+  const modeData = db.getAllMode();
 
   while (true) {
     indexOutOfRange = true;
@@ -26,7 +21,7 @@ async function LearningMode() {
       if (modeIdx === -1) {
         break;
       }
-      topicData = getAvailableTopics(modeData[modeIdx]);
+      topicData = db.getAvailableTopics(modeData[modeIdx]);
       topicIdx = await displaySelectionMenu(
         [...["Choose another mode"], ...topicData],
         "Please select a topic:",
@@ -38,7 +33,7 @@ async function LearningMode() {
     if (modeIdx === -1) {
       break;
     }
-    const questions = getQuestions(topicData[topicIdx]);
+    const questions = db.getQuestions(modeData[modeIdx], topicData[topicIdx]);
     switch (modeIdx) {
       case 0:
         StandardMode(questions);
@@ -106,7 +101,7 @@ function StandardMode(questions) {
     } questions correctly.\nThat is a ${(
       (success / questions.length) *
       100
-    ).toFixed(2)}% success rate.\nPress Enter to continue...`
+    ).toFixed(2)}% success rate.\nPress [Enter] to continue...`
   );
   console.clear();
 }

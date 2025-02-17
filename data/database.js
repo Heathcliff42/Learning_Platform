@@ -1,10 +1,14 @@
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 import sqlite3 from "sqlite3";
-import { mode, topic, questions } from "./testdata.js";
-export { getAvailableTopics, SaveData, getQuestions, getModeData };
 
-export class Database {
+// Get __dirname equivalent in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+export class MyDatabase {
   constructor() {
-    this.db = new sqlite3.Database("learning.db", (err) => {
+    this.db = new sqlite3.Database(join(__dirname, "learning.db"), (err) => {
       if (err) {
         console.error("Error connecting to database:", err);
       } else {
@@ -12,6 +16,13 @@ export class Database {
         this.initDatabase();
       }
     });
+  }
+
+  reset() {
+    this.db.run("DROP TABLE IF EXISTS questions");
+    this.db.run("DROP TABLE IF EXISTS topics");
+    this.db.run("DROP TABLE IF EXISTS modes");
+    this.initDatabase();
   }
 
   initDatabase() {

@@ -1,16 +1,13 @@
 import { displaySelectionMenu, prompt } from "./displaySelectionMenu.js";
 import { styleText } from "node:util";
-import {
-  getAvailableTopics,
-  getModeData,
-  getQuestions,
-} from "./data/database.js";
-import { questions } from "./data/testdata.js";
-import { before } from "node:test";
 
 export { ManagementMode };
 
-async function ManagementMode() {
+/**
+ * TODO: Finish updating to make everything work with changes to database.js
+ */
+
+async function ManagementMode(db) {
   const ManagementModes = [
     "Exit ManagementMode",
     "Create new Categorie",
@@ -20,7 +17,7 @@ async function ManagementMode() {
   ];
   let ManagementModeIdex;
   let topicIdx;
-  const topicData = getAvailableTopics();
+  const topicData = db.getAvailableTopics();
 
   while (true) {
     ManagementModeIdex = await displaySelectionMenu(
@@ -76,7 +73,7 @@ async function EditQuestionsAndAnswers(topicData) {
     console.clear();
     changedQuestion.forEach((element) => console.log(`${element}`));
     console.log(
-      "Are you shure you want to save thise changes?\n0: don`t save\n1: Save"
+      "Are you shure you want to save these changes?\n 0: Don`t save\n 1: Save"
     );
     while (isNaN(save)) {
       save = parseInt(prompt(" > "));
@@ -137,16 +134,16 @@ async function EditQuestionsAndAnswers(topicData) {
   async function addQuestions(questionData, changedQuestion) {
     do {
       console.clear();
-      console.log("type 0 to Exit the add Question mode");
+      console.log("Type 0 to exit the Add Questions mode");
       const question = prompt("The new question: ");
 
       if (parseInt(question) === 0) {
         return;
       }
       const rightAnswer = prompt("Right answer: ");
-      const wrong_answer1 = prompt("Wrong answer 1/3:");
-      const wrong_answer2 = prompt("Wrong answer 2/3:");
-      const wrong_answer3 = prompt("Wrong answer 3/3:");
+      const wrong_answer1 = prompt("Wrong answer 1/3: ");
+      const wrong_answer2 = prompt("Wrong answer 2/3: ");
+      const wrong_answer3 = prompt("Wrong answer 3/3: ");
       let newQuestion = [
         question,
         rightAnswer,
@@ -182,7 +179,7 @@ async function EditQuestionsAndAnswers(topicData) {
     -1
   );
   if (topicIdx !== -1) {
-    let Data = getQuestions(topicData[topicIdx]);
+    let Data = db.getQuestions(topicData[topicIdx]);
     let questionData = structuredClone(Data);
     let changedQuestion = [];
     let editModeLoop = true;
@@ -190,7 +187,7 @@ async function EditQuestionsAndAnswers(topicData) {
     do {
       let editMode = await displaySelectionMenu(
         [
-          styleText("red", "Don't save changes and Exit the mode"),
+          styleText("red", "Don't save changes and exit the mode"),
           styleText("blue", "Change questions and answers"),
           styleText("blue", "Add questions"),
           styleText("red", "Delete questions"),

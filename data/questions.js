@@ -1,6 +1,12 @@
-const mode = ["Multiple Choice"];
-const topic = ["Politics", "Pop Culture", "History", "Sports", "Miscellaneous"];
-const question = [
+export const _mode = ["Multiple Choice"];
+export const _topic = [
+  "Politics",
+  "Pop Culture",
+  "History",
+  "Sports",
+  "Miscellaneous",
+];
+export const _question = [
   [
     [
       "Who was the current president of the United States in 2023?",

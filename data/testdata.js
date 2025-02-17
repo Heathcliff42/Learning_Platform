@@ -241,9 +241,7 @@ export let questions = [
 ];
 
 // Function to save questions to database
-export async function saveQuestionsToDatabase() {
-  const { Database } = await import("./database.js");
-  const db = new Database();
+export async function saveQuestionsToDatabase(db) {
   try {
     await db.saveQuestions(questions, topic[0], mode[0]);
     //console.log("Questions saved successfully");
