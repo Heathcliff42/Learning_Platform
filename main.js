@@ -84,15 +84,17 @@ async function main() {
     }
   }
 }
-
+/*
 await db.reset();
 
 await databaseSetup();
+/**/
 
-//main();
+main();
 
+/*
 db.close();
-
+*/
 /*
 while (true) {
   operationidx = select operation mode
