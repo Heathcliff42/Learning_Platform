@@ -43,7 +43,8 @@ async function main() {
     switch (operatingIdx) {
       case -1:
         console.clear();
-        PROMPT("Goodbye");
+        console.log("closing...");
+        await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
         console.clear();
         process.exit();
       case 0:

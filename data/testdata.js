@@ -1,7 +1,7 @@
 //import { Database } from "./database.js";
 
 export let mode = ["Multiple Choice"];
-export let topic = ["Geography"];
+export let topic = ["Geography - Capitals"];
 export let questions = [
   ["What is the capital of France?", "Paris", "Lyon", "Marseille", "Nice"],
   [
@@ -255,4 +255,4 @@ export async function saveQuestionsToDatabase() {
 }
 
 // Automatically save questions when this module is imported
-saveQuestionsToDatabase();
+// saveQuestionsToDatabase();

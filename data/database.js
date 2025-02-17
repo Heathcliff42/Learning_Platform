@@ -159,47 +159,127 @@ export class Database {
       }
     });
   }
-}
 
-function getAvailableTopics(mode) {
-  /*
-   * TODO: Read available topics from database to list
-   * (join tables to get topics for the selected mode)
-   * input:
-   *   mode: string
-   *     (selected mode)
-   * return:
-   *   topicData: array of strings
-   *     (topics available for the selected mode)
-   **/
-  return topic;
-}
+  getAvailableTopics(mode) {
+    return new Promise((resolve, reject) => {
+      this.db.all(
+        `
+        SELECT DISTINCT t.name 
+        FROM topics t
+        JOIN questions q ON t.id = q.topic_id
+        JOIN modes m ON q.mode_id = m.id
+        WHERE m.name = ?
+      `,
+        [mode],
+        (err, rows) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(rows.map((row) => row.name));
+        }
+      );
+    });
+  }
 
-function getQuestions(topic) {
-  /*
-   * TODO Get the Questions on the DB
-   */
+  getQuestions(mode, topic) {
+    return new Promise((resolve, reject) => {
+      this.db.all(
+        `
+        SELECT q.question, q.correct_answer, q.wrong_answer1, q.wrong_answer2, q.wrong_answer3
+        FROM questions q
+        JOIN topics t ON q.topic_id = t.id
+        JOIN modes m ON q.mode_id = m.id
+        WHERE t.name = ?
+        AND m.name = ?
+      `,
+        [topic, mode],
+        (err, rows) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(
+            rows.map((row) => [
+              row.question,
+              row.correct_answer,
+              row.wrong_answer1,
+              row.wrong_answer2,
+              row.wrong_answer3,
+            ])
+          );
+        }
+      );
+    });
+  }
 
-  return questions;
-}
+  getAllModes() {
+    return new Promise((resolve, reject) => {
+      this.db.all(
+        `
+        SELECT name 
+        FROM modes
+      `,
+        [],
+        (err, rows) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(rows.map((row) => row.name));
+        }
+      );
+    });
+  }
 
-function getModeData() {
-  /*
-   * TODO get available Lerning Mode Data
-   */
-  return mode;
-}
+  renameCategory(oldName, newName) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        "UPDATE topics SET name = ? WHERE name = ?",
+        [newName, oldName],
+        function (err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        }
+      );
+    });
+  }
 
-function SaveData() {
-  /*
-   * TODO: Save Data
-   *
-   * Create a new category/question:
-   * INSERT INTO Category/Question (column1, column2, column3, ...) VALUES (value1, value2, value3, ...);
-   *
-   * Rename/Edit a category/question:
-   * UPDATE Category/Question SET column1 = value1, column2 = value2, ...;
-   *
-   */
-  return;
+  editQuestion(oldQuestion, newQuestion) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        `
+        UPDATE questions
+        SET question = ?, 
+            correct_answer = ?, 
+            wrong_answer1 = ?, 
+            wrong_answer2 = ?, 
+            wrong_answer3 = ?
+        WHERE question = ? 
+          AND correct_answer = ? 
+          AND wrong_answer1 = ? 
+          AND wrong_answer2 = ? 
+          AND wrong_answer3 = ?
+        `,
+        [
+          // New values
+          newQuestion[0],
+          newQuestion[1],
+          newQuestion[2],
+          newQuestion[3],
+          newQuestion[4],
+          // Old values for matching
+          oldQuestion[0],
+          oldQuestion[1],
+          oldQuestion[2],
+          oldQuestion[3],
+          oldQuestion[4],
+        ],
+        function (err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        }
+      );
+    });
+  }
 }
