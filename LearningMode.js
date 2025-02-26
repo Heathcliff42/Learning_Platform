@@ -8,7 +8,7 @@ async function LearningMode(db) {
   let topicIdx = -1;
   let modeIdx = -1;
   let topicData;
-  const modeData = db.getAllMode();
+  const modeData = await db.getAllModes(); // Updated to use promise
 
   while (true) {
     indexOutOfRange = true;
@@ -21,7 +21,7 @@ async function LearningMode(db) {
       if (modeIdx === -1) {
         break;
       }
-      topicData = db.getAvailableTopics(modeData[modeIdx]);
+      topicData = await db.getAvailableTopics(modeData[modeIdx]); // Updated to use promise
       topicIdx = await displaySelectionMenu(
         [...["Choose another mode"], ...topicData],
         "Please select a topic:",
@@ -33,7 +33,7 @@ async function LearningMode(db) {
     if (modeIdx === -1) {
       break;
     }
-    const questions = db.getQuestions(modeData[modeIdx], topicData[topicIdx]);
+    const questions = await db.getQuestions(modeData[modeIdx], topicData[topicIdx]); // Updated to use promise
     switch (modeIdx) {
       case 0:
         StandardMode(questions);
