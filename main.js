@@ -14,7 +14,7 @@ import { ManagementMode } from "./ManagmentMode.js";
 import { MyDatabase } from "./data/database.js";
 import { mode, topic, questions } from "./data/testdata.js";
 import { _mode, _topic, _question } from "./data/questions.js";
-const db = new MyDatabase();
+const db = await new MyDatabase();
 
 async function databaseSetup() {
   db.initDatabase();

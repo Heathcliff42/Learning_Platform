@@ -12,7 +12,7 @@ export class MyDatabase {
       if (err) {
         console.error("Error connecting to database:", err);
       } else {
-        console.log("Connected to database");
+        // console.log("Connected to database");
         this.initDatabase();
       }
     });
