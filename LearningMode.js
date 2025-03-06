@@ -1,8 +1,22 @@
+/*
+ * @Author: Lukas Kroczek
+ * @Author: Julian Scharf
+ * @Date: 2025-02-03
+ * @Description: Learning Mode functionality
+ * @Version: 1.0.1
+ * @LastUpdate: 2025-03-05
+ */
+
 import { styleText } from "node:util";
 import { displaySelectionMenu, prompt } from "./displaySelectionMenu.js";
 
 export { LearningMode };
 
+/**
+ * Main entry point for Learning Mode
+ * @param {Object} db - Database instance
+ * @returns {Promise<void>}
+ */
 async function LearningMode(db) {
   let indexOutOfRange;
   let topicIdx = -1;
@@ -33,7 +47,10 @@ async function LearningMode(db) {
     if (modeIdx === -1) {
       break;
     }
-    const questions = await db.getQuestions(modeData[modeIdx], topicData[topicIdx]); // Updated to use promise
+    const questions = await db.getQuestions(
+      modeData[modeIdx],
+      topicData[topicIdx]
+    ); // Updated to use promise
     switch (modeIdx) {
       case 0:
         StandardMode(questions);
@@ -54,6 +71,11 @@ async function LearningMode(db) {
   }
 }
 
+/**
+ * Implements the standard quiz mode functionality
+ * @param {Array} questions - Array of question data
+ * @returns {void}
+ */
 function StandardMode(questions) {
   let idx = [];
   let success = 0;

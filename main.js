@@ -3,7 +3,7 @@
  * @Author: Julian Scharf
  * @Date: 2025-02-03
  * @Description: Learning Platform
- * @Version: 1.0.2
+ * @Version: 1.0.4
  * @LastUpdate: 2025-02-10
  */
 
@@ -16,6 +16,10 @@ import { mode, topic, questions } from "./data/testdata.js";
 import { _mode, _topic, _question } from "./data/questions.js";
 const db = await new MyDatabase();
 
+/**
+ * Sets up the database with test data
+ * @returns {Promise<void>}
+ */
 async function databaseSetup() {
   db.initDatabase();
   await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
@@ -39,10 +43,10 @@ async function databaseSetup() {
   console.log("Questions setup completed!");
 }
 
-/*
- * TODO: Read mode-data from database to list
- * return: modeData
- **/
+/**
+ * Main entry point for the application
+ * @returns {Promise<void>}
+ */
 async function main() {
   let operationData = ["Learning Mode", "Management Mode"];
 

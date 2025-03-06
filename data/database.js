@@ -1,3 +1,11 @@
+/*
+ * @Author: Lukas Kroczek
+ * @Date: 2025-02-15
+ * @Description: Database operations for the Learning Platform
+ * @Version: 1.0.1
+ * @LastUpdate: 2025-03-05
+ */
+
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import sqlite3 from "sqlite3";
@@ -6,7 +14,13 @@ import sqlite3 from "sqlite3";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+/**
+ * Database class for the Learning Platform
+ */
 export class MyDatabase {
+  /**
+   * Creates a new database instance and initializes it
+   */
   constructor() {
     this.db = new sqlite3.Database(join(__dirname, "learning.db"), (err) => {
       if (err) {
@@ -18,6 +32,10 @@ export class MyDatabase {
     });
   }
 
+  /**
+   * Resets the database by dropping and recreating all tables
+   * @returns {void}
+   */
   reset() {
     this.db.run("DROP TABLE IF EXISTS questions");
     this.db.run("DROP TABLE IF EXISTS topics");
@@ -25,6 +43,10 @@ export class MyDatabase {
     this.initDatabase();
   }
 
+  /**
+   * Initializes the database schema
+   * @returns {void}
+   */
   initDatabase() {
     // Enable foreign key support
     this.db.run("PRAGMA foreign_keys = ON");
@@ -62,6 +84,13 @@ export class MyDatabase {
         `);
   }
 
+  /**
+   * Saves questions to the database
+   * @param {Array} questions - Array of question data
+   * @param {string} topicName - Topic name
+   * @param {string} modeName - Mode name
+   * @returns {Promise<void>}
+   */
   async saveQuestions(questions, topicName, modeName) {
     return new Promise((resolve, reject) => {
       this.db.serialize(async () => {
