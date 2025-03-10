@@ -3,66 +3,95 @@
  * @Author: Julian Scharf
  * @Date: 2025-03-05
  * @Description: Multiple Choice functionality for Learning Mode
- * @Version: 1.0.0
- * @LastUpdate: 2025-03-05
+ * @Version: 1.0.1
+ * @LastUpdate: 2025-03-10
  */
 
 import { styleText } from "node:util";
-import { prompt } from "./displaySelectionMenu.js";
+import { prompt, displaySelectionMenu } from "./displaySelectionMenu.js";
 
 /**
  * Implements the standard quiz mode functionality (multiple choice)
  * @param {Array} questions - Array of question data
  * @returns {void}
  */
-export function MultipleChoiceMode(questions) {
+export async function MultipleChoiceMode(questions) {
   let idx = [];
   let success = 0;
 
+  // Randomize question order
   for (let i = 0; i < questions.length; i++) {
     Math.random() > 0.5 ? idx.push(i) : idx.unshift(i);
   }
 
   for (let i = 0; i < questions.length; i++) {
+    // Create array with indices 1-4 (for answer options)
     let ans = [];
-    for (let j = 1; j < questions[i].length; j++) {
+    for (let j = 1; j < questions[idx[i]].length; j++) {
       Math.random() > 0.5 ? ans.push(j) : ans.unshift(j);
     }
-    console.clear(); // moved back because of updated logic
-    console.log(`Question ${i + 1}: ${questions[idx[i]][0]}`);
-    for (let j = 1; j < questions[i].length; j++) {
-      console.log(` ${j}. ${questions[idx[i]][ans[j - 1]]}`);
-    }
-    let answer = parseInt(prompt(" > ")) - 1;
 
-    console.clear(); // moved back because of updated logic
-    console.log(`Question ${i + 1}: ${questions[idx[i]][0]}`);
-    for (let j = 1; j < questions[i].length; j++) {
-      if (ans[j - 1] === 1) {
-        console.log(
-          styleText("green", ` ${j}. ${questions[idx[i]][ans[j - 1]]}`)
-        );
-      } else if (j - 1 === answer) {
-        console.log(
-          styleText("red", ` ${j}. ${questions[idx[i]][ans[j - 1]]}`)
-        );
+    console.clear();
+    console.log(`Question ${i + 1} of ${questions.length}:`);
+    console.log(styleText("cyan", questions[idx[i]][0]));
+    console.log(""); // Add a blank line
+
+    // Create options for the selection menu
+    const options = [];
+    for (let j = 1; j < questions[idx[i]].length; j++) {
+      options.push(questions[idx[i]][ans[j - 1]]);
+    }
+
+    // Use the selection menu for a better UI experience
+    const selectedAnswer = await displaySelectionMenu(
+      options,
+      "Select your answer:",
+      0
+    );
+
+    // If user pressed escape, treat as wrong answer but continue
+    if (selectedAnswer === -1) {
+      continue;
+    }
+
+    console.clear();
+    console.log(`Question ${i + 1} of ${questions.length}:`);
+    console.log(styleText("cyan", questions[idx[i]][0]));
+    console.log(""); // Add a blank line
+
+    // Show all options with the correct one highlighted
+    for (let j = 0; j < options.length; j++) {
+      if (ans[j] === 1) {
+        // Correct answer
+        console.log(styleText("green", `✓ ${options[j]}`));
+      } else if (j === selectedAnswer) {
+        // Wrong selected answer
+        console.log(styleText("red", `✗ ${options[j]}`));
       } else {
-        console.log(` ${j}. ${questions[idx[i]][ans[j - 1]]}`);
+        // Other wrong answers
+        console.log(`  ${options[j]}`);
       }
     }
-    prompt(" Continue? ");
-    if (ans[answer] === 1) {
+
+    // Check if answer is correct
+    if (ans[selectedAnswer] === 1) {
+      console.log("\n" + styleText("green", "Correct!"));
       success++;
+    } else {
+      console.log("\n" + styleText("red", "Incorrect!"));
     }
+
+    await prompt("\nPress [Enter] to continue...");
   }
+
   console.clear();
-  prompt(
-    `You answered ${success} out of ${
-      questions.length
-    } questions correctly.\nThat is a ${(
-      (success / questions.length) *
-      100
-    ).toFixed(2)}% success rate.\nPress [Enter] to continue...`
+  const successRate = (success / questions.length) * 100;
+  console.log(styleText("cyan", "Quiz Complete!"));
+  console.log(
+    `You answered ${success} out of ${questions.length} questions correctly.`
   );
+  console.log(`That is a ${successRate.toFixed(2)}% success rate.`);
+
+  await prompt("\nPress [Enter] to continue...");
   console.clear();
 }

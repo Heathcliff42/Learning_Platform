@@ -38,6 +38,7 @@ export class MyDatabase {
    */
   reset() {
     this.db.run("DROP TABLE IF EXISTS questions");
+    this.db.run("DROP TABLE IF EXISTS gaptexts");
     this.db.run("DROP TABLE IF EXISTS topics");
     this.db.run("DROP TABLE IF EXISTS modes");
     this.initDatabase();
@@ -53,35 +54,46 @@ export class MyDatabase {
 
     // Create topics table
     this.db.run(`
-            CREATE TABLE IF NOT EXISTS topics (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL UNIQUE
-            )
-        `);
+      CREATE TABLE IF NOT EXISTS topics (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE
+      )
+    `);
 
     // Create modes table
     this.db.run(`
-            CREATE TABLE IF NOT EXISTS modes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL UNIQUE
-            )
-        `);
+      CREATE TABLE IF NOT EXISTS modes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE
+      )
+    `);
 
     // Create questions table with foreign keys
     this.db.run(`
-            CREATE TABLE IF NOT EXISTS questions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                question TEXT NOT NULL,
-                correct_answer TEXT NOT NULL,
-                wrong_answer1 TEXT NOT NULL,
-                wrong_answer2 TEXT NOT NULL,
-                wrong_answer3 TEXT NOT NULL,
-                topic_id INTEGER NOT NULL,
-                mode_id INTEGER NOT NULL,
-                FOREIGN KEY (topic_id) REFERENCES topics(id),
-                FOREIGN KEY (mode_id) REFERENCES modes(id)
-            )
-        `);
+      CREATE TABLE IF NOT EXISTS questions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        question TEXT NOT NULL,
+        correct_answer TEXT NOT NULL,
+        wrong_answer1 TEXT NOT NULL,
+        wrong_answer2 TEXT NOT NULL,
+        wrong_answer3 TEXT NOT NULL,
+        topic_id INTEGER NOT NULL,
+        mode_id INTEGER NOT NULL,
+        FOREIGN KEY (topic_id) REFERENCES topics(id),
+        FOREIGN KEY (mode_id) REFERENCES modes(id)
+      )
+    `);
+
+    // Create gaptexts table with foreign keys
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS gaptexts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        text TEXT NOT NULL,
+        solution TEXT NOT NULL,
+        topic_id INTEGER NOT NULL,
+        FOREIGN KEY (topic_id) REFERENCES topics(id)
+      )
+    `);
   }
 
   /**
@@ -121,6 +133,100 @@ export class MyDatabase {
                 topicId,
                 modeId,
                 (err) => (err ? reject(err) : resolve())
+              );
+            });
+          }
+
+          stmt.finalize();
+          this.db.run("COMMIT");
+          resolve();
+        } catch (error) {
+          this.db.run("ROLLBACK");
+          reject(error);
+        }
+      });
+    });
+  }
+
+  /**
+   * Saves flashcards to the database
+   * @param {Array} flashcards - Array of flashcard data [question, answer]
+   * @param {string} topicName - Topic name
+   * @returns {Promise<void>}
+   */
+  async saveFlashcards(flashcards, topicName) {
+    return new Promise((resolve, reject) => {
+      this.db.serialize(async () => {
+        try {
+          this.db.run("BEGIN TRANSACTION");
+
+          // Insert or get topic
+          const topicId = await this.getOrCreateTopic(topicName);
+          // Get or create "Flashcard" mode
+          const modeId = await this.getOrCreateMode("Flashcard");
+
+          const stmt = this.db.prepare(`
+            INSERT INTO questions (
+              question, correct_answer, wrong_answer1, 
+              wrong_answer2, wrong_answer3, topic_id, mode_id
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+          `);
+
+          for (const [question, answer] of flashcards) {
+            await new Promise((resolve, reject) => {
+              // For flashcards, we only care about question and correct_answer
+              // Fill wrong answers with placeholder values
+              stmt.run(
+                question,
+                answer,
+                "N/A", // Placeholder for wrong answers
+                "N/A",
+                "N/A",
+                topicId,
+                modeId,
+                (err) => (err ? reject(err) : resolve())
+              );
+            });
+          }
+
+          stmt.finalize();
+          this.db.run("COMMIT");
+          resolve();
+        } catch (error) {
+          this.db.run("ROLLBACK");
+          reject(error);
+        }
+      });
+    });
+  }
+
+  /**
+   * Saves gaptexts to the database
+   * @param {Array} gaptexts - Array of gaptext data [text, solution]
+   * @param {string} topicName - Topic name
+   * @returns {Promise<void>}
+   */
+  async saveGaptexts(gaptexts, topicName) {
+    return new Promise((resolve, reject) => {
+      this.db.serialize(async () => {
+        try {
+          this.db.run("BEGIN TRANSACTION");
+
+          // Insert or get topic
+          const topicId = await this.getOrCreateTopic(topicName);
+
+          const stmt = this.db.prepare(`
+            INSERT INTO gaptexts (
+              text, solution, topic_id
+            )
+            VALUES (?, ?, ?)
+          `);
+
+          for (const [text, solution] of gaptexts) {
+            await new Promise((resolve, reject) => {
+              stmt.run(text, solution, topicId, (err) =>
+                err ? reject(err) : resolve()
               );
             });
           }
@@ -201,6 +307,24 @@ export class MyDatabase {
   }
 
   getAvailableTopics(mode) {
+    if (mode === "AI Chat") {
+      return new Promise((resolve, reject) => {
+        this.db.all(
+          `
+          SELECT DISTINCT t.name 
+          FROM topics t
+        `,
+          [mode],
+          (err, rows) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+            resolve(rows.map((row) => row.name));
+          }
+        );
+      });
+    }
     return new Promise((resolve, reject) => {
       this.db.all(
         `
@@ -239,15 +363,47 @@ export class MyDatabase {
             reject(err);
             return;
           }
-          resolve(
-            rows.map((row) => [
-              row.question,
-              row.correct_answer,
-              row.wrong_answer1,
-              row.wrong_answer2,
-              row.wrong_answer3,
-            ])
-          );
+
+          // For Flashcard mode, only return question and answer
+          if (mode === "Flashcard") {
+            resolve(rows.map((row) => [row.question, row.correct_answer]));
+          } else {
+            resolve(
+              rows.map((row) => [
+                row.question,
+                row.correct_answer,
+                row.wrong_answer1,
+                row.wrong_answer2,
+                row.wrong_answer3,
+              ])
+            );
+          }
+        }
+      );
+    });
+  }
+
+  /**
+   * Gets all gaptexts for a specific topic
+   * @param {string} topic - Topic name
+   * @returns {Promise<Array>} - Array of gaptext data [text, solution]
+   */
+  getGaptexts(topic) {
+    return new Promise((resolve, reject) => {
+      this.db.all(
+        `
+        SELECT g.text, g.solution
+        FROM gaptexts g
+        JOIN topics t ON g.topic_id = t.id
+        WHERE t.name = ?
+      `,
+        [topic],
+        (err, rows) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(rows.map((row) => [row.text, row.solution]));
         }
       );
     });
@@ -314,6 +470,38 @@ export class MyDatabase {
           oldQuestion[2],
           oldQuestion[3],
           oldQuestion[4],
+        ],
+        function (err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        }
+      );
+    });
+  }
+
+  /**
+   * Edits a gaptext entry
+   * @param {Array} oldGaptext - Old gaptext data [text, solution]
+   * @param {Array} newGaptext - New gaptext data [text, solution]
+   * @returns {Promise<number>} - Number of rows affected
+   */
+  editGaptext(oldGaptext, newGaptext) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        `
+        UPDATE gaptexts
+        SET text = ?, 
+            solution = ?
+        WHERE text = ? 
+          AND solution = ?
+        `,
+        [
+          // New values
+          newGaptext[0],
+          newGaptext[1],
+          // Old values for matching
+          oldGaptext[0],
+          oldGaptext[1],
         ],
         function (err) {
           if (err) reject(err);

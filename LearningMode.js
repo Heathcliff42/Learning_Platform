@@ -3,8 +3,8 @@
  * @Author: Julian Scharf
  * @Date: 2025-02-03
  * @Description: Learning Mode functionality
- * @Version: 1.0.1
- * @LastUpdate: 2025-03-05
+ * @Version: 1.0.3
+ * @LastUpdate: 2025-03-10
  */
 
 import { displaySelectionMenu } from "./displaySelectionMenu.js";
@@ -50,26 +50,32 @@ async function LearningMode(db) {
     if (modeIdx === -1) {
       break;
     }
-    const questions = await db.getQuestions(
-      modeData[modeIdx],
-      topicData[topicIdx]
-    ); // Updated to use promise
-    switch (modeIdx) {
-      case 0:
-        MultipleChoiceMode(questions);
-        break;
-      case 1:
-        GapTextMode(questions);
-        break;
-      case 2:
-        FlashcardMode(questions);
-        break;
-      case 3:
-        await AIChatMode(questions);
-        break;
-      default:
-        // Index out of range, try again or exit
-        break;
+
+    const selectedMode = modeData[modeIdx];
+    const selectedTopic = topicData[topicIdx];
+
+    try {
+      // For Gaptext mode, use the special getGaptexts method
+      if (selectedMode === "Gaptext") {
+        const gaptexts = await db.getGaptexts(selectedTopic);
+        GapTextMode(gaptexts);
+      }
+      // For AI Chat, no need to retrieve questions
+      else if (selectedMode === "AI Chat") {
+        await AIChatMode(selectedTopic);
+      }
+      // For other modes (Multiple Choice and Flashcard), use getQuestions method
+      else {
+        const questions = await db.getQuestions(selectedMode, selectedTopic);
+
+        if (selectedMode === "Multiple Choice") {
+          MultipleChoiceMode(questions);
+        } else if (selectedMode === "Flashcard") {
+          FlashcardMode(questions);
+        }
+      }
+    } catch (error) {
+      console.error(`Error in ${selectedMode} mode:`, error);
     }
   }
 }

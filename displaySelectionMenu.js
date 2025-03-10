@@ -3,8 +3,8 @@
  * @Author: Julian Scharf
  * @Date: 2025-02-03
  * @Description: Menu display and user input handling utilities
- * @Version: 1.0.2
- * @LastUpdate: 2025-03-05
+ * @Version: 1.0.4
+ * @LastUpdate: 2025-03-10
  */
 
 import readline from "readline";
@@ -26,6 +26,12 @@ export function prompt(text) {
   return new Promise((resolve) => {
     rl.question("", (answer) => {
       rl.close();
+      // Check for exit command
+      if (answer.toUpperCase() === "EXIT") {
+        console.clear();
+        console.log("Exiting program...");
+        process.exit(0);
+      }
       resolve(answer);
     });
   });
@@ -52,7 +58,11 @@ export async function displaySelectionMenu(
   readline.emitKeypressEvents(process.stdin);
   if (process.stdin.isTTY) process.stdin.setRawMode(true);
 
+  // Validate defaultSelection to be within bounds
   let currentSelection = defaultSelection;
+  if (currentSelection < 0) currentSelection = 0;
+  if (currentSelection >= options.length) currentSelection = options.length - 1;
+
   let lastRenderedSelection = -999; // Initialize with a value that doesn't match any valid selection
 
   // Function to render the menu
@@ -62,6 +72,7 @@ export async function displaySelectionMenu(
       console.clear();
       console.log(prompt);
 
+      // Render each option with the current selection highlighted
       options.forEach((option, index) => {
         if (index === currentSelection) {
           console.log(`> ${styleText("green", option)}`);
@@ -70,6 +81,7 @@ export async function displaySelectionMenu(
         }
       });
 
+      console.log("\nUse arrow keys to navigate and Enter to select");
       lastRenderedSelection = currentSelection;
     }
   };
@@ -77,9 +89,10 @@ export async function displaySelectionMenu(
   renderMenu();
 
   return new Promise((resolve) => {
-    process.stdin.on("keypress", (str, key) => {
+    const keyHandler = (str, key) => {
       if (key.name === "c" && key.ctrl) {
-        process.exit();
+        cleanup();
+        process.exit(0);
       } else if (key.name === "up") {
         currentSelection =
           currentSelection > 0 ? currentSelection - 1 : options.length - 1;
@@ -88,12 +101,31 @@ export async function displaySelectionMenu(
         currentSelection =
           currentSelection < options.length - 1 ? currentSelection + 1 : 0;
         renderMenu();
-      } else if (key.name === "return") {
-        process.stdin.removeAllListeners("keypress");
-        if (process.stdin.isTTY) process.stdin.setRawMode(false);
-        rl.close();
+      } else if (key.name === "return" || key.name === "enter") {
+        cleanup();
+        // Ensure we're resolving with the current highlighted selection
         resolve(currentSelection);
+      } else if (key.name === "escape") {
+        cleanup();
+        resolve(-1); // Return -1 to indicate cancellation
+      } else if (key.name >= "1" && key.name <= "9") {
+        // Allow numeric selection for options 1-9
+        const numSelection = parseInt(key.name) - 1;
+        if (numSelection < options.length) {
+          currentSelection = numSelection;
+          renderMenu();
+          // Don't select immediately, just navigate to the option
+        }
       }
-    });
+    };
+
+    // Clean up event listeners and restore terminal settings
+    const cleanup = () => {
+      process.stdin.removeListener("keypress", keyHandler);
+      if (process.stdin.isTTY) process.stdin.setRawMode(false);
+      rl.close();
+    };
+
+    process.stdin.on("keypress", keyHandler);
   });
 }

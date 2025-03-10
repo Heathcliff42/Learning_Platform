@@ -67,7 +67,7 @@ async function main() {
     operatingIdx = await displaySelectionMenu(
       [...["Exit"], ...operationData],
       "Please select an operation mode:",
-      -1
+      0
     );
     switch (operatingIdx) {
       case -1:
