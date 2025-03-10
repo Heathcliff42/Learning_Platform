@@ -25,6 +25,9 @@ async function databaseSetup() {
   await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
   console.log("Database setup completed!");
   db.getOrCreateMode(mode[0]);
+  db.getOrCreateMode("AI Chat");
+  db.getOrCreateMode("Flashcard");
+  db.getOrCreateMode("Gaptext");
   await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
   console.log("Mode setup completed!");
   db.getOrCreateTopic(topic[0]);
@@ -58,10 +61,7 @@ async function main() {
     )}"! \nPress [Enter] to continue...`
   );
 
-  // let topicIdx = -1;
-  // let modeIdx = -1;
-  let operatingIdx = -2;
-  //let indexOutOfRange;
+  let operatingIdx = -1;
 
   while (true) {
     operatingIdx = await displaySelectionMenu(
@@ -71,15 +71,16 @@ async function main() {
     );
     switch (operatingIdx) {
       case -1:
+      case 0:
         console.clear();
-        console.log("Closing...");
+        console.log("Exiting...");
         await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
         console.clear();
         process.exit();
-      case 0:
+      case 1:
         await LearningMode(db);
         break;
-      case 1:
+      case 2:
         await ManagementMode(db);
         break;
       default:
@@ -90,7 +91,7 @@ async function main() {
 }
 /*
 await db.reset();
-
+await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
 await databaseSetup();
 /**/
 

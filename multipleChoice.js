@@ -45,7 +45,7 @@ export async function MultipleChoiceMode(questions) {
     // Use the selection menu for a better UI experience
     const selectedAnswer = await displaySelectionMenu(
       options,
-      "Select your answer:",
+      questions[idx[i]][0],
       0
     );
 

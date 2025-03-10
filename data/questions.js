@@ -251,9 +251,9 @@ export const _question = [
     [
       "Which famous superhero is known for the phrase 'I am vengeance, I am the night'?",
       "Batman",
-      "Superman",
-      "Spider-Man",
-      "Iron Man",
+      "Moon Knight",
+      "Ghost Rider",
+      "Daredevil",
     ],
     [
       "Which pop star released the album '1989'?",

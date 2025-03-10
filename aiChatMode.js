@@ -30,7 +30,7 @@ export async function AIChatMode(topic) {
   console.log(
     "Answer in your own words, and the AI will evaluate your response."
   );
-  prompt("\nPress [Enter] to begin conversation with AI...");
+  await prompt("\nPress [Enter] to begin conversation with AI...");
 
   for (let i = 0; i < questions.length; i++) {
     console.clear();
@@ -45,9 +45,9 @@ export async function AIChatMode(topic) {
     const question = questions[i];
     console.log(styleText("green", "AI: ") + question);
 
-    // Get user's answer
+    // Get user's answer - FIXED: Using await to wait for user input
     console.log(styleText("yellow", "You: "));
-    const userAnswer = prompt("> ");
+    const userAnswer = await prompt("> ");
 
     // Use OpenAI API to evaluate the answer
     const evaluation = await evaluateAnswerWithAI(question, userAnswer);
@@ -74,7 +74,7 @@ export async function AIChatMode(topic) {
 
     score += evaluation.percentage;
 
-    prompt("\nPress [Enter] to continue...");
+    await prompt("\nPress [Enter] to continue...");
   }
 
   const averageScore = score / questions.length;
@@ -114,7 +114,7 @@ export async function AIChatMode(topic) {
     );
   }
 
-  prompt("\nPress [Enter] to return to the main menu...");
+  await prompt("\nPress [Enter] to return to the main menu...");
   console.clear();
 }
 
@@ -130,7 +130,7 @@ async function generateQuestions(topic, count) {
     messages: [
       {
         role: "system",
-        content: `Generate ${count} questions on the topic: ${topic}. Format the response as one question per line.`,
+        content: `Generate ${count} questions on the topic: ${topic}. Format the response as one question per line. Please provide additional context needed to correctly answer the question, like dates, and keep the difficulty on a level appropriate for an average adult person that isn't too engrossed in the topic.`,
       },
     ],
     max_tokens: 1500,
@@ -155,7 +155,7 @@ async function evaluateAnswerWithAI(question, userAnswer) {
     messages: [
       {
         role: "system",
-        content: `Evaluate the following answer:\n\nQuestion: ${question}\nAnswer: ${userAnswer}\n\nProvide a score out of 100, a status (Correct, Partially Correct, Incorrect), and feedback in the form of: 'Status: <status>\\nPercentage: <score>\\nFeedback: <feedback>'.`,
+        content: `Evaluate the following answer:\n\nQuestion: ${question}\nAnswer: ${userAnswer}\n\nDon't abduct points for minor typos.\nProvide a score out of 100, a status (Correct, Incorrect), and feedback in the form of: 'Status: <status>\\nPercentage: <score>\\nFeedback: <feedback>'.`,
       },
     ],
     max_tokens: 250,

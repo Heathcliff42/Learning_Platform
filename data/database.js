@@ -311,10 +311,10 @@ export class MyDatabase {
       return new Promise((resolve, reject) => {
         this.db.all(
           `
-          SELECT DISTINCT t.name 
-          FROM topics t
+          SELECT DISTINCT name 
+          FROM topics
         `,
-          [mode],
+          [], // Remove the erroneous parameter here
           (err, rows) => {
             if (err) {
               reject(err);

@@ -21,44 +21,50 @@ export { LearningMode };
  * @returns {Promise<void>}
  */
 async function LearningMode(db) {
-  let indexOutOfRange;
-  let topicIdx = -1;
-  let modeIdx = -1;
   let topicData;
-  const modeData = await db.getAllModes(); // Updated to use promise
+  const modeData = await db.getAllModes();
 
   while (true) {
-    indexOutOfRange = true;
-    while (indexOutOfRange) {
-      modeIdx = await displaySelectionMenu(
-        [...["Choose another mode of operation"], ...modeData],
-        "Please select a mode:",
-        -1
-      );
-      if (modeIdx === -1) {
-        break;
-      }
-      topicData = await db.getAvailableTopics(modeData[modeIdx]); // Updated to use promise
-      topicIdx = await displaySelectionMenu(
-        [...["Choose another mode"], ...topicData],
-        "Please select a topic:",
-        -1
-      );
-      indexOutOfRange =
-        0 <= topicIdx && topicIdx < topicData.length ? false : true;
-    }
-    if (modeIdx === -1) {
-      break;
+    // Mode selection
+    const modeIdx = await displaySelectionMenu(
+      [...["Back to main menu"], ...modeData],
+      "Please select a mode:",
+      0
+    );
+
+    // Exit condition - User pressed ESC or selected "Back to main menu"
+    if (modeIdx === -1 || modeIdx === 0) {
+      return;
     }
 
-    const selectedMode = modeData[modeIdx];
-    const selectedTopic = topicData[topicIdx];
+    // Get the selected mode (accounting for the "Back" option at index 0)
+    const actualModeIdx = modeIdx - 1;
+    const selectedMode = modeData[actualModeIdx];
+
+    // Get available topics for selected mode
+    topicData = await db.getAvailableTopics(selectedMode);
+
+    // Topic selection
+    const topicIdx = await displaySelectionMenu(
+      [...["Back to mode selection"], ...topicData],
+      `Please select a topic for ${selectedMode}:`,
+      0
+    );
+
+    // If user wants to go back to mode selection or pressed ESC
+    if (topicIdx === -1 || topicIdx === 0) {
+      continue; // Go back to the top of the while loop (mode selection)
+    }
+
+    // Get the selected topic (accounting for the "Back" option at index 0)
+    const actualTopicIdx = topicIdx - 1;
+    const selectedTopic = topicData[actualTopicIdx];
 
     try {
       // For Gaptext mode, use the special getGaptexts method
       if (selectedMode === "Gaptext") {
         const gaptexts = await db.getGaptexts(selectedTopic);
-        GapTextMode(gaptexts);
+        await GapTextMode(gaptexts);
       }
       // For AI Chat, no need to retrieve questions
       else if (selectedMode === "AI Chat") {
@@ -69,9 +75,9 @@ async function LearningMode(db) {
         const questions = await db.getQuestions(selectedMode, selectedTopic);
 
         if (selectedMode === "Multiple Choice") {
-          MultipleChoiceMode(questions);
+          await MultipleChoiceMode(questions);
         } else if (selectedMode === "Flashcard") {
-          FlashcardMode(questions);
+          await FlashcardMode(questions);
         }
       }
     } catch (error) {
