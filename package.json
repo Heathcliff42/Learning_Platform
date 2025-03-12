@@ -2,7 +2,7 @@
   "name": "learning_platform",
   "version": "1.0.0",
   "description": "Platform for learning and quizzing",
-  "main": "index.js",
+  "main": "main.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
