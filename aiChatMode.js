@@ -489,6 +489,10 @@ async function generateSingleQuestion(topic, difficulty, skippedTopics) {
           role: "system",
           content: `Generate a ${difficulty} difficulty question on the topic: ${topic}. ${difficultyPrompt} ${skipTopicsText}
           
+          Use UK English and keep the question concise and clear.
+          
+          Don't concentrate on knowlege that is specific to a certain region or country.
+
           Also identify what specific subtopic within ${topic} this question addresses.
           Format your response as a JSON object with two fields:
           {
@@ -554,7 +558,7 @@ async function evaluateAnswerWithAI(
   switch (difficulty) {
     case "easy":
       evaluationCriteria =
-        "Be lenient in scoring. Focus on basic understanding rather than details. Accept partial answers if they show basic comprehension.";
+        "Be lenient in scoring. Focus on basic understanding rather than details. If an answer shows basic comprehension, it's score should be at least 80.";
       break;
     case "medium":
       evaluationCriteria =
@@ -582,7 +586,8 @@ async function evaluateAnswerWithAI(
           Answer: ${userAnswer}
 
           ${evaluationCriteria}
-          Ignore typos that don't impact the meaning (this also counts for e.g. names missing single letters).
+
+          Use UK English and ignore typos that don't impact the meaning in the scoring (this also counts for e.g. names missing a single letter).
 
           Provide a score out of 100, a status (Correct, Partially Correct, or Incorrect), and feedback.
           
