@@ -54,7 +54,7 @@ async function main() {
   let operationData = ["Learning Mode", "Management Mode"];
 
   console.clear();
-  prompt(
+  await prompt(
     `Welcome to the Learning Platform!\nYou can always exit the programm by typing: "${styleText(
       "red",
       "EXIT"
