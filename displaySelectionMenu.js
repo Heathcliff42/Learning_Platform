@@ -42,13 +42,14 @@ export function prompt(text) {
  * @param {Array<string>} options - Array of menu options
  * @param {string} prompt - Text to display above the menu
  * @param {number} defaultSelection - Initial selection index
+ * @param {number} visibleCount - count of visible elements
  * @returns {Promise<number>} Selected option index
  */
 export async function displaySelectionMenu(
   options,
   prompt,
   defaultSelection = 0,
-  visibleCount = 10 // Anzahl der gleichzeitig sichtbaren Elemente
+  visibleCount = 10
 ) {
   const rl = readline.createInterface({
     input: process.stdin,

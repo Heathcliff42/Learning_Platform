@@ -68,7 +68,7 @@ async function selectTopic(db, mode) {
 
   if (!topicData || topicData.length === 0) {
     console.log(`No topics available for mode "${mode}".`);
-    prompt("Press Enter to continue...");
+    await prompt("Press Enter to continue...");
     return; // Go back to mode selection
   }
 
@@ -93,7 +93,7 @@ async function selectTopic(db, mode) {
 
     if (topicIdx === 1) {
       // Create new topic
-      const newTopicName = prompt("Enter name for new topic: ");
+      const newTopicName = await prompt("Enter name for new topic: ");
       if (newTopicName && newTopicName.trim() !== "") {
         try {
           // Create topic by saving a placeholder question
@@ -106,17 +106,17 @@ async function selectTopic(db, mode) {
           ];
           await db.saveQuestions([placeholderQuestion], newTopicName, mode);
           console.log(`Topic "${newTopicName}" created successfully.`);
-          prompt("Press Enter to continue...");
+          await prompt("Press Enter to continue...");
         } catch (error) {
           console.error("Error creating new topic:", error);
-          prompt("Press Enter to continue...");
+          await prompt("Press Enter to continue...");
         }
       }
       continue;
     }
 
     // Selected a valid topic, move to question management (layer 3)
-    const selectedTopic = topicData[topicIdx - 3]; // Adjust for the two navigation options
+    const selectedTopic = topicData[topicIdx - 2]; // Adjust for the two navigation options
     await manageQuestions(db, mode, selectedTopic);
   }
 }
@@ -162,7 +162,7 @@ async function manageQuestions(db, mode, topic) {
         break;
 
       case 3: // Rename topic
-        const newName = prompt(`Enter new name for topic "${topic}": `);
+        const newName = await prompt(`Enter new name for topic "${topic}": `);
         if (newName && newName.trim() !== "") {
           try {
             await db.renameCategory(topic, newName);
@@ -173,13 +173,13 @@ async function manageQuestions(db, mode, topic) {
           } catch (error) {
             console.error("Error renaming topic:", error);
           }
-          prompt("Press Enter to continue...");
+          await prompt("Press Enter to continue...");
         }
         break;
 
       case 4: // Delete topic (not implemented)
         console.log("This feature is not implemented yet.");
-        prompt("Press Enter to continue...");
+        await prompt("Press Enter to continue...");
         break;
     }
   }
@@ -200,7 +200,7 @@ async function editQuestions(db, mode, topic) {
     console.log(
       `No questions available for topic "${topic}" in mode "${mode}".`
     );
-    prompt("Press Enter to continue...");
+    await prompt("Press Enter to continue...");
     return;
   }
 
@@ -220,7 +220,7 @@ async function editQuestions(db, mode, topic) {
     // Show questions with a back option
     const options = [
       "Go back to topic management",
-      ...displayQuestions.map((q) => q[0]),
+      ...displayQuestions.map((q) => `${q[0]},${q[1]},${q[2]},${q[3]},${q[4]}`),
     ];
 
     const questionIdx = await displaySelectionMenu(
@@ -272,29 +272,15 @@ async function editSingleQuestion(db, mode, topic, questions, questionIdx) {
 
   while (true) {
     console.clear();
-    console.log(
-      `Editing question in Mode: ${styleText(
-        "green",
-        mode
-      )} | Topic: ${styleText("blue", topic)}\n`
-    );
-
-    // Display the current question
-    console.log(`Question: ${styleText("blue", question[0])}`);
-    console.log(`Correct answer: ${styleText("green", question[1])}`);
-    console.log(`Wrong answer 1: ${question[2]}`);
-    console.log(`Wrong answer 2: ${question[3]}`);
-    console.log(`Wrong answer 3: ${question[4]}`);
-    console.log("\n");
 
     // Define edit options
     const editOptions = [
       "Go back to question list",
-      "Edit question text",
-      "Edit correct answer",
-      "Edit wrong answer 1",
-      "Edit wrong answer 2",
-      "Edit wrong answer 3",
+      `Edit question text:  ${styleText("blue", question[0])}`,
+      `Edit correct answer: ${styleText("green", question[1])}`,
+      `Edit wrong answer 1: ${question[2]}`,
+      `Edit wrong answer 2: ${question[3]}`,
+      `Edit wrong answer 3: ${question[4]}`,
       "Delete this question",
     ];
 
@@ -310,7 +296,7 @@ async function editSingleQuestion(db, mode, topic, questions, questionIdx) {
 
     if (editChoice === 6) {
       // Delete question
-      const confirmation = prompt(
+      const confirmation = await prompt(
         "Are you sure you want to delete this question? (y/n): "
       );
       if (confirmation.toLowerCase() === "y") {
@@ -321,11 +307,11 @@ async function editSingleQuestion(db, mode, topic, questions, questionIdx) {
           question[0] = "DELETED - " + question[0];
           await db.editQuestion(oldQuestion, question);
           console.log("Question marked for deletion.");
-          prompt("Press Enter to continue...");
+          await prompt("Press Enter to continue...");
           return; // Go back after deletion
         } catch (error) {
           console.error("Error deleting question:", error);
-          prompt("Press Enter to continue...");
+          await prompt("Press Enter to continue...");
         }
       }
       continue;
@@ -342,7 +328,7 @@ async function editSingleQuestion(db, mode, topic, questions, questionIdx) {
     ];
 
     const oldValue = question[fieldIdx];
-    const newValue = prompt(
+    const newValue = await prompt(
       `Enter new ${fieldNames[fieldIdx]} (current: ${oldValue}): `
     );
 
@@ -359,7 +345,7 @@ async function editSingleQuestion(db, mode, topic, questions, questionIdx) {
         question[fieldIdx] = oldValue;
         console.error("Error updating question:", error);
       }
-      prompt("Press Enter to continue...");
+      await prompt("Press Enter to continue...");
     }
   }
 }
@@ -380,7 +366,7 @@ async function addQuestion(db, mode, topic) {
     )} | Topic: ${styleText("blue", topic)}\n`
   );
 
-  const question = prompt(
+  const question = await prompt(
     "Enter question text (or type 'cancel' to go back): "
   );
 
@@ -388,10 +374,10 @@ async function addQuestion(db, mode, topic) {
     return;
   }
 
-  const correctAnswer = prompt("Enter correct answer: ");
-  const wrongAnswer1 = prompt("Enter wrong answer 1: ");
-  const wrongAnswer2 = prompt("Enter wrong answer 2: ");
-  const wrongAnswer3 = prompt("Enter wrong answer 3: ");
+  const correctAnswer = await prompt("Enter correct answer: ");
+  const wrongAnswer1 = await prompt("Enter wrong answer 1: ");
+  const wrongAnswer2 = await prompt("Enter wrong answer 2: ");
+  const wrongAnswer3 = await prompt("Enter wrong answer 3: ");
 
   const newQuestion = [
     question,
@@ -408,5 +394,5 @@ async function addQuestion(db, mode, topic) {
     console.error("Error adding question:", error);
   }
 
-  prompt("Press Enter to continue...");
+  await prompt("Press Enter to continue...");
 }
