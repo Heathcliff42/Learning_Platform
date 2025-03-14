@@ -2,8 +2,8 @@
  * @Author: Lukas Kroczek
  * @Date: 2025-03-07
  * @Description: AI Chat functionality for Learning Mode
- * @Version: 1.0.2
- * @LastUpdate: 2025-03-25
+ * @Version: 1.0.3
+ * @LastUpdate: 2025-03-14
  */
 
 import { styleText } from "node:util";
@@ -194,7 +194,6 @@ export async function AIChatMode(topic) {
 
     // Display the AI's question
     console.log(styleText("green", "AI: ") + question);
-    console.log(styleText("cyan", `[Topic: ${questionTopic}]`));
 
     // Get user's answer - Make sure we're actually waiting for input
     console.log(styleText("yellow", "You: "));
@@ -489,8 +488,8 @@ async function generateSingleQuestion(topic, difficulty, skippedTopics) {
           role: "system",
           content: `Generate a ${difficulty} difficulty question on the topic: ${topic}. ${difficultyPrompt} ${skipTopicsText}
           
-          Use UK English and keep the question concise and clear.
-          
+          Use UK English and keep the question concise and clear, as well as answerable in few words.
+
           Don't concentrate on knowlege that is specific to a certain region or country.
 
           Also identify what specific subtopic within ${topic} this question addresses.
@@ -587,7 +586,7 @@ async function evaluateAnswerWithAI(
 
           ${evaluationCriteria}
 
-          Use UK English and ignore typos that don't impact the meaning in the scoring (this also counts for e.g. names missing a single letter).
+          Use UK English and ignore spelling mistakes that don't impact the meaning for the scoring (this also counts for e.g. names missing a single letter).
 
           Provide a score out of 100, a status (Correct, Partially Correct, or Incorrect), and feedback.
           
