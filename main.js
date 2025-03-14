@@ -12,7 +12,6 @@ import { displaySelectionMenu, prompt } from "./displaySelectionMenu.js";
 import { LearningMode } from "./LearningMode.js";
 import { ManagementMode } from "./ManagmentMode.js";
 import { MyDatabase } from "./data/database.js";
-import { mode, topic, questions } from "./data/testdata.js";
 import { _mode, _topic, _question } from "./data/questions.js";
 const db = await new MyDatabase();
 
@@ -24,23 +23,21 @@ async function databaseSetup() {
   db.initDatabase();
   await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
   console.log("Database setup completed!");
-  db.getOrCreateMode(mode[0]);
+  db.getOrCreateMode(_mode[0]);
   db.getOrCreateMode("AI Chat");
   db.getOrCreateMode("Flashcard");
   db.getOrCreateMode("Gaptext");
   await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
   console.log("Mode setup completed!");
-  db.getOrCreateTopic(topic[0]);
   await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
   _topic.forEach((element) => {
     db.getOrCreateTopic(element);
   });
   await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
   console.log("Topic setup completed!");
-  db.saveQuestions(questions, topic[0], mode[0]);
   await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
   for (let i = 0; i < _topic.length; i++) {
-    await db.saveQuestions(_question[i], _topic[i], mode[0]);
+    await db.saveQuestions(_question[i], _topic[i], _mode[0]);
     await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
   }
   console.log("Questions setup completed!");
