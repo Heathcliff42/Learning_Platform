@@ -116,6 +116,9 @@ export async function AIChatMode(topic) {
   // Track topics the user struggles with
   let topicPerformance = {};
   let skippedTopics = new Set();
+  
+  // Create a set to track asked questions and prevent duplicates
+  let askedQuestions = new Set();
 
   // For adaptive mode, start with medium difficulty
   if (selectedDifficulty === "adaptive") {
@@ -183,14 +186,18 @@ export async function AIChatMode(topic) {
       )
     );
 
-    // Generate a single question
+    // Generate a single question (avoid duplicates)
     const questionData = await generateSingleQuestion(
       topic,
       currentDifficulty,
-      skippedTopics
+      skippedTopics,
+      askedQuestions
     );
     const question = questionData.question;
     const questionTopic = questionData.subtopic;
+    
+    // Add the question to our set of asked questions
+    askedQuestions.add(question);
 
     // Display the AI's question
     console.log(styleText("green", "AI: ") + question);
@@ -449,9 +456,10 @@ export async function AIChatMode(topic) {
  * @param {string} topic - The main topic for generating questions
  * @param {string} difficulty - The difficulty level
  * @param {Set} skippedTopics - Topics to avoid in question generation
+ * @param {Set} askedQuestions - Set of previously asked questions to avoid duplicates
  * @returns {Object} The generated question and its subtopic
  */
-async function generateSingleQuestion(topic, difficulty, skippedTopics) {
+async function generateSingleQuestion(topic, difficulty, skippedTopics, askedQuestions = new Set()) {
   // Create difficulty-specific prompt
   let difficultyPrompt;
   switch (difficulty) {
@@ -480,6 +488,11 @@ async function generateSingleQuestion(topic, difficulty, skippedTopics) {
         ).join(", ")}.`
       : "";
 
+  // Added instruction to avoid previous questions
+  const uniqueInstructionText = askedQuestions.size > 0 
+    ? `Do not generate any of these previously asked questions: ${Array.from(askedQuestions).slice(0, 5).join(" | ")}.` 
+    : "";
+
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
@@ -487,6 +500,8 @@ async function generateSingleQuestion(topic, difficulty, skippedTopics) {
         {
           role: "system",
           content: `Generate a ${difficulty} difficulty question on the topic: ${topic}. ${difficultyPrompt} ${skipTopicsText}
+          
+          ${uniqueInstructionText}
           
           Use UK English and keep the question concise and clear, as well as answerable in few words.
 
@@ -509,6 +524,13 @@ async function generateSingleQuestion(topic, difficulty, skippedTopics) {
 
     try {
       const result = JSON.parse(response.choices[0].message.content);
+      
+      // Check if this question (or very similar) has been asked before
+      if (askedQuestions.size > 0 && questionIsDuplicate(result.question, askedQuestions)) {
+        console.log(styleText("yellow", "Avoiding duplicate question. Generating new one..."));
+        return generateSingleQuestion(topic, difficulty, skippedTopics, askedQuestions);
+      }
+      
       return {
         question: result.question,
         subtopic: result.subtopic,
@@ -536,6 +558,39 @@ async function generateSingleQuestion(topic, difficulty, skippedTopics) {
       subtopic: topic,
     };
   }
+}
+
+/**
+ * Checks if a question is too similar to previously asked questions
+ * @param {string} newQuestion - The question to check
+ * @param {Set} askedQuestions - Set of previously asked questions
+ * @returns {boolean} True if the question is a duplicate
+ */
+function questionIsDuplicate(newQuestion, askedQuestions) {
+  // Simple duplicate check
+  if (askedQuestions.has(newQuestion)) {
+    return true;
+  }
+  
+  // Basic similarity check (case-insensitive, stripped of punctuation)
+  const normalizeQuestion = q => q.toLowerCase().replace(/[.,?!;:]/g, '').trim();
+  const normalizedNew = normalizeQuestion(newQuestion);
+  
+  // Check if the normalized question is very similar to any previous question
+  for (const previous of askedQuestions) {
+    const normalizedPrevious = normalizeQuestion(previous);
+    
+    // If questions are very similar (share >80% of words)
+    const newWords = new Set(normalizedNew.split(/\s+/));
+    const prevWords = new Set(normalizedPrevious.split(/\s+/));
+    const sharedWords = [...newWords].filter(word => prevWords.has(word)).length;
+    
+    if (sharedWords >= 0.8 * Math.min(newWords.size, prevWords.size)) {
+      return true;
+    }
+  }
+  
+  return false;
 }
 
 /**
@@ -586,7 +641,7 @@ async function evaluateAnswerWithAI(
 
           ${evaluationCriteria}
 
-          Use UK English and ignore spelling mistakes that don't impact the meaning for the scoring (this also counts for e.g. names missing a single letter).
+          Use UK English and ignore spelling mistakes that don't impact the meaning for scoring purposes (this also counts for e.g. names missing a single letter).
 
           Provide a score out of 100, a status (Correct, Partially Correct, or Incorrect), and feedback.
           
