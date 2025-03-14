@@ -7,7 +7,7 @@
  * @LastUpdate: 2025-03-10
  */
 
-import { displaySelectionMenu } from "./displaySelectionMenu.js";
+import { displaySelectionMenu, prompt } from "./displaySelectionMenu.js";
 import { MultipleChoiceMode } from "./multipleChoice.js";
 import { GapTextMode } from "./gapTextMode.js";
 import { FlashcardMode } from "./flashcardMode.js";
@@ -44,9 +44,14 @@ async function LearningMode(db) {
     // Get available topics for selected mode
     topicData = await db.getAvailableTopics(selectedMode);
 
-    // Topic selection
+    // Topic selection - Add "Custom topic" option for AI Chat mode
+    const topicSelectionOptions = [...["Back to mode selection"], ...topicData];
+    if (selectedMode === "AI Chat") {
+      topicSelectionOptions.push("Custom topic");
+    }
+    
     const topicIdx = await displaySelectionMenu(
-      [...["Back to mode selection"], ...topicData],
+      topicSelectionOptions,
       `Please select a topic for ${selectedMode}:`,
       0
     );
@@ -56,9 +61,21 @@ async function LearningMode(db) {
       continue; // Go back to the top of the while loop (mode selection)
     }
 
-    // Get the selected topic (accounting for the "Back" option at index 0)
-    const actualTopicIdx = topicIdx - 1;
-    const selectedTopic = topicData[actualTopicIdx];
+    // Handle custom topic option for AI Chat mode
+    let selectedTopic;
+    
+    if (selectedMode === "AI Chat" && topicIdx === topicSelectionOptions.length - 1) {
+      // User selected "Custom topic" option
+      selectedTopic = await prompt("Enter your custom topic: ");
+      if (!selectedTopic) {
+        console.log("No topic entered. Returning to topic selection.");
+        continue;
+      }
+    } else {
+      // Get the selected topic (accounting for the "Back" option at index 0)
+      const actualTopicIdx = topicIdx - 1;
+      selectedTopic = topicData[actualTopicIdx];
+    }
 
     try {
       // For Gaptext mode, use the special getGaptexts method
