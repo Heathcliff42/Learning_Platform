@@ -116,7 +116,7 @@ async function selectTopic(db, mode) {
     }
 
     // Selected a valid topic, move to question management (layer 3)
-    const selectedTopic = topicData[topicIdx - 3]; // Adjust for the two navigation options
+    const selectedTopic = topicData[topicIdx - 2]; // Adjust for the two navigation options
     await manageQuestions(db, mode, selectedTopic);
   }
 }
@@ -220,7 +220,7 @@ async function editQuestions(db, mode, topic) {
     // Show questions with a back option
     const options = [
       "Go back to topic management",
-      ...displayQuestions.map((q) => q[0]),
+      ...displayQuestions.map((q) => `${q[0]},${q[1]},${q[2]},${q[3]},${q[4]}`),
     ];
 
     const questionIdx = await displaySelectionMenu(
@@ -272,29 +272,15 @@ async function editSingleQuestion(db, mode, topic, questions, questionIdx) {
 
   while (true) {
     console.clear();
-    console.log(
-      `Editing question in Mode: ${styleText(
-        "green",
-        mode
-      )} | Topic: ${styleText("blue", topic)}\n`
-    );
-
-    // Display the current question
-    console.log(`Question: ${styleText("blue", question[0])}`);
-    console.log(`Correct answer: ${styleText("green", question[1])}`);
-    console.log(`Wrong answer 1: ${question[2]}`);
-    console.log(`Wrong answer 2: ${question[3]}`);
-    console.log(`Wrong answer 3: ${question[4]}`);
-    console.log("\n");
 
     // Define edit options
     const editOptions = [
       "Go back to question list",
-      "Edit question text",
-      "Edit correct answer",
-      "Edit wrong answer 1",
-      "Edit wrong answer 2",
-      "Edit wrong answer 3",
+      `Edit question text:  ${styleText("blue", question[0])}`,
+      `Edit correct answer: ${styleText("green", question[1])}`,
+      `Edit wrong answer 1: ${question[2]}`,
+      `Edit wrong answer 2: ${question[3]}`,
+      `Edit wrong answer 3: ${question[4]}`,
       "Delete this question",
     ];
 

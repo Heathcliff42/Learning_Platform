@@ -42,48 +42,50 @@ export function prompt(text) {
  * @param {Array<string>} options - Array of menu options
  * @param {string} prompt - Text to display above the menu
  * @param {number} defaultSelection - Initial selection index
+ * @param {number} visibleCount - count of visible elements
  * @returns {Promise<number>} Selected option index
  */
 export async function displaySelectionMenu(
   options,
   prompt,
-  defaultSelection = 0
+  defaultSelection = 0,
+  visibleCount = 10
 ) {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
-  // To handle raw mode for arrow keys
   readline.emitKeypressEvents(process.stdin);
   if (process.stdin.isTTY) process.stdin.setRawMode(true);
 
-  // Validate defaultSelection to be within bounds
-  let currentSelection = defaultSelection;
-  if (currentSelection < 0) currentSelection = 0;
-  if (currentSelection >= options.length) currentSelection = options.length - 1;
+  let currentSelection = Math.max(
+    0,
+    Math.min(defaultSelection, options.length - 1)
+  );
+  let offset = Math.max(0, currentSelection - Math.floor(visibleCount / 2));
 
-  let lastRenderedSelection = -999; // Initialize with a value that doesn't match any valid selection
-
-  // Function to render the menu
   const renderMenu = () => {
-    // Only clear and render if the selection has changed
-    if (currentSelection !== lastRenderedSelection) {
-      console.clear();
-      console.log(prompt);
+    console.clear();
+    console.log(prompt);
 
-      // Render each option with the current selection highlighted
-      options.forEach((option, index) => {
-        if (index === currentSelection) {
-          console.log(`> ${styleText("green", option)}`);
-        } else {
-          console.log(`  ${option}`);
-        }
-      });
-
-      console.log("\nUse arrow keys to navigate and Enter to select");
-      lastRenderedSelection = currentSelection;
+    // Scrollbar Logik: Sicherstellen, dass der aktuelle Auswahlbereich sichtbar ist
+    if (currentSelection < offset) {
+      offset = currentSelection;
+    } else if (currentSelection >= offset + visibleCount) {
+      offset = currentSelection - visibleCount + 1;
     }
+
+    const end = Math.min(offset + visibleCount, options.length);
+    for (let i = offset; i < end; i++) {
+      console.log(
+        i === currentSelection
+          ? `> ${styleText("green", options[i])}`
+          : `  ${options[i]}`
+      );
+    }
+
+    console.log("\nUse arrow keys to navigate and Enter to select");
   };
 
   renderMenu();
@@ -103,23 +105,19 @@ export async function displaySelectionMenu(
         renderMenu();
       } else if (key.name === "return" || key.name === "enter") {
         cleanup();
-        // Ensure we're resolving with the current highlighted selection
         resolve(currentSelection);
       } else if (key.name === "escape") {
         cleanup();
-        resolve(-1); // Return -1 to indicate cancellation
+        resolve(-1);
       } else if (key.name >= "1" && key.name <= "9") {
-        // Allow numeric selection for options 1-9
         const numSelection = parseInt(key.name) - 1;
         if (numSelection < options.length) {
           currentSelection = numSelection;
           renderMenu();
-          // Don't select immediately, just navigate to the option
         }
       }
     };
 
-    // Clean up event listeners and restore terminal settings
     const cleanup = () => {
       process.stdin.removeListener("keypress", keyHandler);
       if (process.stdin.isTTY) process.stdin.setRawMode(false);
