@@ -966,7 +966,7 @@ export const _question = [
       "Stewart Copeland",
     ],
     [
-      "Which song was not on the Beatles' 'White Album'?",
+      "Which song was not on the Beatles' \"White Album\"?",
       "Strawberry Fields Forever",
       "Ob-La-Di, Ob-La-Da",
       "Helter Skelter",
@@ -980,7 +980,7 @@ export const _question = [
       "Dangerous",
     ],
     [
-      "What is no correct completion : 'Welcome to the Jungle, ...'?",
+      "What is not a correct completion: 'Welcome to the Jungle, ...'?",
       "Come and hear them say",
       "We got fun and games",
       "It gets worse here every day",
