@@ -73,13 +73,13 @@ async function selectDifficulty() {
  */
 async function selectQuestionCount() {
   console.clear();
-  const questionCountOptions = ["5", "10", "15", "20", "25", "30"];
+  const questionCountOptions = ["5", "10", "15", "20"];
 
   const selectedIndex = await displaySelectionMenu(
     questionCountOptions,
     styleText("cyan", "How many questions would you like to answer?") +
       "\n------------------------------------------",
-    3 // Default to 20 questions (index 3)
+    1 // Default to 10 questions (index 1)
   );
 
   // Check if user canceled
@@ -87,10 +87,10 @@ async function selectQuestionCount() {
     console.log(
       styleText(
         "yellow",
-        "Selection cancelled. Using default count (20 questions)."
+        "Selection cancelled. Using default count (10 questions)."
       )
     );
-    return 20;
+    return 10;
   }
 
   return parseInt(questionCountOptions[selectedIndex]);
@@ -116,7 +116,7 @@ export async function AIChatMode(topic) {
   // Track topics the user struggles with
   let topicPerformance = {};
   let skippedTopics = new Set();
-  
+
   // Create a set to track asked questions and prevent duplicates
   let askedQuestions = new Set();
 
@@ -195,7 +195,7 @@ export async function AIChatMode(topic) {
     );
     const question = questionData.question;
     const questionTopic = questionData.subtopic;
-    
+
     // Add the question to our set of asked questions
     askedQuestions.add(question);
 
@@ -459,7 +459,12 @@ export async function AIChatMode(topic) {
  * @param {Set} askedQuestions - Set of previously asked questions to avoid duplicates
  * @returns {Object} The generated question and its subtopic
  */
-async function generateSingleQuestion(topic, difficulty, skippedTopics, askedQuestions = new Set()) {
+async function generateSingleQuestion(
+  topic,
+  difficulty,
+  skippedTopics,
+  askedQuestions = new Set()
+) {
   // Create difficulty-specific prompt
   let difficultyPrompt;
   switch (difficulty) {
@@ -489,9 +494,12 @@ async function generateSingleQuestion(topic, difficulty, skippedTopics, askedQue
       : "";
 
   // Added instruction to avoid previous questions
-  const uniqueInstructionText = askedQuestions.size > 0 
-    ? `Do not generate any of these previously asked questions: ${Array.from(askedQuestions).slice(0, 5).join(" | ")}.` 
-    : "";
+  const uniqueInstructionText =
+    askedQuestions.size > 0
+      ? `Do not generate any of these previously asked questions: ${Array.from(
+          askedQuestions
+        ).join(" | ")}.`
+      : "";
 
   try {
     const response = await openai.chat.completions.create({
@@ -503,7 +511,7 @@ async function generateSingleQuestion(topic, difficulty, skippedTopics, askedQue
           
           ${uniqueInstructionText}
           
-          Use UK English and keep the question concise and clear, as well as answerable in few words.
+          Use UK English and keep the question clear, concise and answerable in few words.
 
           Don't concentrate on knowlege that is specific to a certain region or country.
 
@@ -524,13 +532,7 @@ async function generateSingleQuestion(topic, difficulty, skippedTopics, askedQue
 
     try {
       const result = JSON.parse(response.choices[0].message.content);
-      
-      // Check if this question (or very similar) has been asked before
-      if (askedQuestions.size > 0 && questionIsDuplicate(result.question, askedQuestions)) {
-        console.log(styleText("yellow", "Avoiding duplicate question. Generating new one..."));
-        return generateSingleQuestion(topic, difficulty, skippedTopics, askedQuestions);
-      }
-      
+
       return {
         question: result.question,
         subtopic: result.subtopic,
@@ -561,39 +563,6 @@ async function generateSingleQuestion(topic, difficulty, skippedTopics, askedQue
 }
 
 /**
- * Checks if a question is too similar to previously asked questions
- * @param {string} newQuestion - The question to check
- * @param {Set} askedQuestions - Set of previously asked questions
- * @returns {boolean} True if the question is a duplicate
- */
-function questionIsDuplicate(newQuestion, askedQuestions) {
-  // Simple duplicate check
-  if (askedQuestions.has(newQuestion)) {
-    return true;
-  }
-  
-  // Basic similarity check (case-insensitive, stripped of punctuation)
-  const normalizeQuestion = q => q.toLowerCase().replace(/[.,?!;:]/g, '').trim();
-  const normalizedNew = normalizeQuestion(newQuestion);
-  
-  // Check if the normalized question is very similar to any previous question
-  for (const previous of askedQuestions) {
-    const normalizedPrevious = normalizeQuestion(previous);
-    
-    // If questions are very similar (share >80% of words)
-    const newWords = new Set(normalizedNew.split(/\s+/));
-    const prevWords = new Set(normalizedPrevious.split(/\s+/));
-    const sharedWords = [...newWords].filter(word => prevWords.has(word)).length;
-    
-    if (sharedWords >= 0.8 * Math.min(newWords.size, prevWords.size)) {
-      return true;
-    }
-  }
-  
-  return false;
-}
-
-/**
  * Evaluates the user's answer using OpenAI API with consideration for difficulty
  * @param {string} question - The AI's question
  * @param {string} userAnswer - The user's provided answer
@@ -612,19 +581,19 @@ async function evaluateAnswerWithAI(
   switch (difficulty) {
     case "easy":
       evaluationCriteria =
-        "Be lenient in scoring. Focus on basic understanding rather than details. If an answer shows basic comprehension, it's score should be at least 80.";
+        "Be lenient in scoring. Focus on basic understanding rather than details. Minor errors should not impact the score.";
       break;
     case "medium":
       evaluationCriteria =
-        "Use standard scoring. Answers should demonstrate clear understanding but don't require many detail to be perfect.";
+        "Use standard scoring. Answers should demonstrate clear understanding but don't require detail to be perfect.";
       break;
     case "hard":
       evaluationCriteria =
-        "Apply rigorous scoring. Expect detailed answers with specific facts and good reasoning. Minor errors are acceptable but should impact the score.";
+        "Apply rigorous scoring. Expect clear answers with some detail. Minor errors are acceptable but should impact the score.";
       break;
     case "expert":
       evaluationCriteria =
-        "Use very strict scoring. Expect comprehensive, precise answers with specific details and excellent reasoning. Even small errors should impact the score.";
+        "Use very strict scoring. Expect precise answers with specific details. Even small errors should impact the score.";
       break;
   }
 
@@ -634,7 +603,7 @@ async function evaluateAnswerWithAI(
       messages: [
         {
           role: "system",
-          content: `Evaluate the following answer for a ${difficulty} difficulty question about ${subtopic}:
+          content: `Evaluate the following answer for the following question:
           
           Question: ${question}
           Answer: ${userAnswer}
