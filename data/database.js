@@ -428,6 +428,22 @@ export class MyDatabase {
     });
   }
 
+  getTopcByName(Topicname) {
+    return new Promise((resolve, reject) => {
+      this.db.all(
+        `SELECT * FROM topics WHERE name = ?`,
+        [Topicname],
+        (err, rows) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(rows[0]);
+        }
+      );
+    });
+  }
+
   renameCategory(oldName, newName) {
     return new Promise((resolve, reject) => {
       this.db.run(
@@ -503,6 +519,32 @@ export class MyDatabase {
           oldGaptext[0],
           oldGaptext[1],
         ],
+        function (err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        }
+      );
+    });
+  }
+
+  DeleteQuestionByTopcID(topicID) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        "DELETE FROM questions where topic_id = ?",
+        [topicID],
+        function (err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        }
+      );
+    });
+  }
+
+  DeleteTopicByname(Topicname) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        "DELETE FROM topics where name = ?",
+        [Topicname],
         function (err) {
           if (err) reject(err);
           else resolve(this.changes);

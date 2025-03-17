@@ -63,14 +63,20 @@ async function selectMode(db) {
  * @returns {Promise<void>}
  */
 async function selectTopic(db, mode) {
-  // Get available topics for the selected mode
-  const topicData = await db.getAvailableTopics(mode);
+  async function getTopicData() {
+    // Get available topics for the selected mode
+    const topicData = await db.getAvailableTopics(mode);
 
-  if (!topicData || topicData.length === 0) {
-    console.log(`No topics available for mode "${mode}".`);
-    await prompt("Press Enter to continue...");
-    return; // Go back to mode selection
+    if (!topicData || topicData.length === 0) {
+      console.log(`No topics available for mode "${mode}".`);
+      await prompt("Press Enter to continue...");
+      return; // Go back with no data
+    }
+    return topicData;
   }
+
+  let topicData = await getTopicData();
+  if (!Array.isArray(topicData)) return; // Go back to mode selection
 
   while (true) {
     console.clear();
@@ -117,7 +123,11 @@ async function selectTopic(db, mode) {
 
     // Selected a valid topic, move to question management (layer 3)
     const selectedTopic = topicData[topicIdx - 2]; // Adjust for the two navigation options
-    await manageQuestions(db, mode, selectedTopic);
+    const answer = await manageQuestions(db, mode, selectedTopic);
+    if (answer === "DELETE") {
+      topicData = await getTopicData();
+      if (!Array.isArray(topicData)) return; // Go back to mode selection
+    }
   }
 }
 
@@ -136,7 +146,7 @@ async function manageQuestions(db, mode, topic) {
       "View and edit questions",
       "Add new question",
       "Rename this topic",
-      "Delete this topic (not implemented)",
+      "Delete this topic",
     ];
 
     const actionIdx = await displaySelectionMenu(
@@ -178,8 +188,8 @@ async function manageQuestions(db, mode, topic) {
         break;
 
       case 4: // Delete topic (not implemented)
-        console.log("This feature is not implemented yet.");
-        await prompt("Press Enter to continue...");
+        await DeleteTopic(db, topic);
+        return "DELETE";
         break;
     }
   }
@@ -395,4 +405,28 @@ async function addQuestion(db, mode, topic) {
   }
 
   await prompt("Press Enter to continue...");
+}
+
+async function DeleteTopic(db, topic) {
+  console.clear();
+  const answer = await prompt(
+    `Are you sure you want to delete the topic "${styleText(
+      "blue",
+      topic
+    )}" with all Questions?(y/n)`
+  );
+  if (answer === "y") {
+    try {
+      const TopicData = await db.getTopcByName(topic);
+
+      await db.DeleteQuestionByTopcID(TopicData.id).then((deletedRows) => {
+        console.log(`${deletedRows} Questions got deleted`);
+      });
+      db.DeleteTopicByname(topic);
+      await prompt("topic and all questions got deleted");
+    } catch (error) {
+      console.log(error);
+      await prompt("Something went wrong");
+    }
+  }
 }
