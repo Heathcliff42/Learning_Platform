@@ -407,6 +407,12 @@ async function addQuestion(db, mode, topic) {
   await prompt("Press Enter to continue...");
 }
 
+/**
+ * Deletes a topic and all its associated questions
+ * @param {Object} db - Database instance
+ * @param {string} topic - Topic to delete
+ * @returns {Promise<void>}
+ */
 async function deleteTopic(db, topic) {
   console.clear();
   const answer = await prompt(

@@ -242,6 +242,11 @@ export class MyDatabase {
     });
   }
 
+  /**
+   * Gets or creates a topic in the database
+   * @param {string} topicName - Name of the topic
+   * @returns {Promise<number>} - ID of the topic
+   */
   getOrCreateTopic(topicName) {
     return new Promise((resolve, reject) => {
       this.db.get(
@@ -269,6 +274,11 @@ export class MyDatabase {
     });
   }
 
+  /**
+   * Gets or creates a mode in the database
+   * @param {string} modeName - Name of the mode
+   * @returns {Promise<number>} - ID of the mode
+   */
   getOrCreateMode(modeName) {
     return new Promise((resolve, reject) => {
       this.db.get(
@@ -296,6 +306,10 @@ export class MyDatabase {
     });
   }
 
+  /**
+   * Closes the database connection
+   * @returns {void}
+   */
   close() {
     this.db.close((err) => {
       if (err) {
@@ -306,6 +320,11 @@ export class MyDatabase {
     });
   }
 
+  /**
+   * Gets all available topics for a specific mode
+   * @param {string} mode - Mode name
+   * @returns {Promise<Array<string>>} - Array of topic names
+   */
   getAvailableTopics(mode) {
     if (mode === "AI Chat") {
       return new Promise((resolve, reject) => {
@@ -346,6 +365,12 @@ export class MyDatabase {
     });
   }
 
+  /**
+   * Gets questions for a specific mode and topic
+   * @param {string} mode - Mode name
+   * @param {string} topic - Topic name
+   * @returns {Promise<Array>} - Array of question data
+   */
   getQuestions(mode, topic) {
     return new Promise((resolve, reject) => {
       this.db.all(
@@ -409,6 +434,10 @@ export class MyDatabase {
     });
   }
 
+  /**
+   * Gets all available modes
+   * @returns {Promise<Array<string>>} - Array of mode names
+   */
   getAllModes() {
     return new Promise((resolve, reject) => {
       this.db.all(
@@ -428,6 +457,11 @@ export class MyDatabase {
     });
   }
 
+  /**
+   * Gets a topic by its name
+   * @param {string} Topicname - Name of the topic
+   * @returns {Promise<Object>} - Topic data
+   */
   getTopicByName(Topicname) {
     return new Promise((resolve, reject) => {
       this.db.all(
@@ -444,6 +478,12 @@ export class MyDatabase {
     });
   }
 
+  /**
+   * Renames a topic
+   * @param {string} oldName - Current name of the topic
+   * @param {string} newName - New name for the topic
+   * @returns {Promise<number>} - Number of rows affected
+   */
   renameCategory(oldName, newName) {
     return new Promise((resolve, reject) => {
       this.db.run(
@@ -457,6 +497,12 @@ export class MyDatabase {
     });
   }
 
+  /**
+   * Edits an existing question
+   * @param {Array} oldQuestion - Old question data [question, correct_answer, wrong1, wrong2, wrong3]
+   * @param {Array} newQuestion - New question data [question, correct_answer, wrong1, wrong2, wrong3]
+   * @returns {Promise<number>} - Number of rows affected
+   */
   editQuestion(oldQuestion, newQuestion) {
     return new Promise((resolve, reject) => {
       this.db.run(
@@ -527,6 +573,11 @@ export class MyDatabase {
     });
   }
 
+  /**
+   * Deletes all questions associated with a topic
+   * @param {number} topicID - ID of the topic
+   * @returns {Promise<number>} - Number of rows affected
+   */
   deleteQuestionByTopcID(topicID) {
     return new Promise((resolve, reject) => {
       this.db.run(
@@ -540,6 +591,11 @@ export class MyDatabase {
     });
   }
 
+  /**
+   * Deletes a topic by name
+   * @param {string} Topicname - Name of the topic to delete
+   * @returns {Promise<number>} - Number of rows affected
+   */
   deleteTopicByName(Topicname) {
     return new Promise((resolve, reject) => {
       this.db.run(
