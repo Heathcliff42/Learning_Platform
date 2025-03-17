@@ -502,12 +502,13 @@ async function generateSingleQuestion(
       : "";
 
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: `Generate a ${difficulty} difficulty question on the topic: ${topic}. ${difficultyPrompt} ${skipTopicsText}
+    const response = await retryAPIRequest(() =>
+      openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: `Generate a ${difficulty} difficulty question on the topic: ${topic}. ${difficultyPrompt} ${skipTopicsText}
           
           ${uniqueInstructionText}
           
@@ -523,12 +524,13 @@ async function generateSingleQuestion(
           }
 
           Return only valid JSON in your response.`,
-        },
-      ],
-      response_format: { type: "json_object" },
-      max_tokens: 500,
-      temperature: 0.7,
-    });
+          },
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 500,
+        temperature: 0.7,
+      })
+    );
 
     try {
       const result = JSON.parse(response.choices[0].message.content);
@@ -598,12 +600,13 @@ async function evaluateAnswerWithAI(
   }
 
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: `Evaluate the following answer for the following question:
+    const response = await retryAPIRequest(() =>
+      openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: `Evaluate the following answer for the following question:
           
           Question: ${question}
           Answer: ${userAnswer}
@@ -612,7 +615,7 @@ async function evaluateAnswerWithAI(
 
           Use UK English and ignore spelling mistakes that don't impact the meaning for scoring purposes (this also counts for e.g. names missing a single letter).
 
-          Provide a score out of 100, a status (Correct, Partially Correct, or Incorrect), and feedback.
+          Provide a score out of 100, a status (Correct, Partially Correct, or Incorrect), and feedback (with right answer if the question was answered wrong).
           
           Return your evaluation as a JSON object in the following format:
           {
@@ -622,12 +625,13 @@ async function evaluateAnswerWithAI(
           }
 
           You must return only valid JSON in your response.`,
-        },
-      ],
-      response_format: { type: "json_object" },
-      max_tokens: 500,
-      temperature: 0.3,
-    });
+          },
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 500,
+        temperature: 0.3,
+      })
+    );
 
     try {
       const result = JSON.parse(response.choices[0].message.content);
