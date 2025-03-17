@@ -428,7 +428,7 @@ export class MyDatabase {
     });
   }
 
-  getTopcByName(Topicname) {
+  getTopicByName(Topicname) {
     return new Promise((resolve, reject) => {
       this.db.all(
         `SELECT * FROM topics WHERE name = ?`,
@@ -527,7 +527,7 @@ export class MyDatabase {
     });
   }
 
-  DeleteQuestionByTopcID(topicID) {
+  deleteQuestionByTopcID(topicID) {
     return new Promise((resolve, reject) => {
       this.db.run(
         "DELETE FROM questions where topic_id = ?",
@@ -540,7 +540,7 @@ export class MyDatabase {
     });
   }
 
-  DeleteTopicByname(Topicname) {
+  deleteTopicByName(Topicname) {
     return new Promise((resolve, reject) => {
       this.db.run(
         "DELETE FROM topics where name = ?",

@@ -188,7 +188,7 @@ async function manageQuestions(db, mode, topic) {
         break;
 
       case 4: // Delete topic (not implemented)
-        await DeleteTopic(db, topic);
+        await deleteTopic(db, topic);
         return "DELETE";
         break;
     }
@@ -407,7 +407,7 @@ async function addQuestion(db, mode, topic) {
   await prompt("Press Enter to continue...");
 }
 
-async function DeleteTopic(db, topic) {
+async function deleteTopic(db, topic) {
   console.clear();
   const answer = await prompt(
     `Are you sure you want to delete the topic "${styleText(
@@ -417,12 +417,12 @@ async function DeleteTopic(db, topic) {
   );
   if (answer === "y") {
     try {
-      const TopicData = await db.getTopcByName(topic);
+      const TopicData = await db.getTopicByName(topic);
 
-      await db.DeleteQuestionByTopcID(TopicData.id).then((deletedRows) => {
+      await db.deleteQuestionByTopcID(TopicData.id).then((deletedRows) => {
         console.log(`${deletedRows} Questions got deleted`);
       });
-      db.DeleteTopicByname(topic);
+      db.deleteTopicByName(topic);
       await prompt("topic and all questions got deleted");
     } catch (error) {
       console.log(error);
