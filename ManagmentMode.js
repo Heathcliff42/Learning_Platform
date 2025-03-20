@@ -3,12 +3,16 @@
  * @Author: Julian Scharf
  * @Date: 2025-02-08
  * @Description: Management Mode functionality
- * @Version: 1.0.1
- * @LastUpdate: 2025-03-05
+ * @Version: 1.0.2
+ * @LastUpdate: 2025-03-20
  */
 
 import { displaySelectionMenu, prompt } from "./displaySelectionMenu.js";
 import { styleText } from "node:util";
+import {
+  generateQuestionsWithAI,
+  reviewGeneratedQuestions,
+} from "./aiQuestionGenerator.js";
 
 export { ManagementMode };
 
@@ -145,6 +149,7 @@ async function manageQuestions(db, mode, topic) {
       "Go back to topic selection",
       "View and edit questions",
       "Add new question",
+      "Generate questions with AI",
       "Rename this topic",
       "Delete this topic",
     ];
@@ -171,7 +176,11 @@ async function manageQuestions(db, mode, topic) {
         await addQuestion(db, mode, topic);
         break;
 
-      case 3: // Rename topic
+      case 3: // Generate questions with AI
+        await generateAIQuestions(db, mode, topic);
+        break;
+
+      case 4: // Rename topic
         const newName = await prompt(`Enter new name for topic "${topic}": `);
         if (newName && newName.trim() !== "") {
           try {
@@ -187,7 +196,7 @@ async function manageQuestions(db, mode, topic) {
         }
         break;
 
-      case 4: // Delete topic (not implemented)
+      case 5: // Delete topic (not implemented)
         await deleteTopic(db, topic);
         return "DELETE";
         break;
@@ -435,4 +444,131 @@ async function deleteTopic(db, topic) {
       await prompt("Something went wrong");
     }
   }
+}
+
+/**
+ * Generate questions using AI
+ * @param {Object} db - Database instance
+ * @param {string} mode - Selected mode
+ * @param {string} topic - Selected topic
+ * @returns {Promise<void>}
+ */
+async function generateAIQuestions(db, mode, topic) {
+  console.clear();
+  console.log(styleText("cyan", "AI Question Generator"));
+  console.log(
+    `Generating questions for Mode: ${styleText(
+      "green",
+      mode
+    )} | Topic: ${styleText("blue", topic)}\n`
+  );
+
+  try {
+    // Check if OpenAI API key is set
+    if (!process.env.OPENAI_API_KEY) {
+      console.log(styleText("red", "ERROR: OpenAI API key not found!"));
+      console.log("Please set your OPENAI_API_KEY environment variable.");
+      await prompt("Press Enter to continue...");
+      return;
+    }
+
+    // Get existing questions to avoid duplicates
+    const existingQuestions = await db.getQuestions(mode, topic);
+
+    if (!existingQuestions) {
+      console.log(
+        styleText(
+          "yellow",
+          "No existing questions found. Creating new questions from scratch."
+        )
+      );
+    } else {
+      console.log(
+        styleText(
+          "green",
+          `Found ${existingQuestions.length} existing questions for this topic.`
+        )
+      );
+    }
+
+    // Select number of questions to generate
+    const questionCount = await selectQuestionCount();
+
+    // Generate questions
+    const generatedQuestions = await generateQuestionsWithAI(
+      topic,
+      existingQuestions || [],
+      questionCount
+    );
+
+    if (!generatedQuestions || generatedQuestions.length === 0) {
+      console.log(styleText("red", "No questions were generated."));
+      await prompt("Press Enter to continue...");
+      return;
+    }
+
+    // Review and save questions
+    console.log(
+      styleText(
+        "green",
+        `Successfully generated ${generatedQuestions.length} questions!`
+      )
+    );
+    console.log("Let's review them before saving to the database.");
+    await prompt("Press Enter to review questions...");
+
+    const selectedQuestions = await reviewGeneratedQuestions(
+      generatedQuestions
+    );
+
+    if (selectedQuestions.length === 0) {
+      console.log(styleText("yellow", "No questions were selected to save."));
+      await prompt("Press Enter to continue...");
+      return;
+    }
+
+    // Save selected questions to database
+    await db.saveQuestions(selectedQuestions, topic, mode);
+    console.log(
+      styleText(
+        "green",
+        `${selectedQuestions.length} questions saved successfully!`
+      )
+    );
+  } catch (error) {
+    console.log(
+      styleText("red", `Error generating questions: ${error.message}`)
+    );
+  }
+
+  await prompt("Press Enter to continue...");
+}
+
+/**
+ * Helper function for selectQuestionCount
+ * Imported from aiQuestionGenerator.js for convenience
+ */
+async function selectQuestionCount() {
+  console.clear();
+  const questionCountOptions = ["5", "10", "15", "20"];
+
+  const selectedIndex = await displaySelectionMenu(
+    questionCountOptions,
+    styleText("cyan", "How many questions would you like to generate?") +
+      "\n------------------------------------------",
+    0 // Default to 5 questions (index 0)
+  );
+
+  // Check if user canceled
+  if (selectedIndex === -1) {
+    console.log(
+      styleText(
+        "yellow",
+        "Selection cancelled. Using default count (5 questions)."
+      )
+    );
+    return 5;
+  }
+
+  return parseInt(questionCountOptions[selectedIndex]);
 }
