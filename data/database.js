@@ -2,8 +2,8 @@
  * @Author: Lukas Kroczek
  * @Date: 2025-02-15
  * @Description: Database operations for the Learning Platform
- * @Version: 1.0.1
- * @LastUpdate: 2025-03-05
+ * @Version: 1.0.2
+ * @LastUpdate: 2025-03-21
  */
 
 import { fileURLToPath } from "url";
@@ -601,6 +601,29 @@ export class MyDatabase {
       this.db.run(
         "DELETE FROM topics where name = ?",
         [Topicname],
+        function (err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        }
+      );
+    });
+  }
+
+  /**
+   * Deletes a gaptext entry
+   * @param {string} text - The gaptext text
+   * @param {string} solution - The gaptext solution
+   * @returns {Promise<number>} - Number of rows affected
+   */
+  deleteGaptext(text, solution) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        `
+        DELETE FROM gaptexts
+        WHERE text = ? 
+          AND solution = ?
+        `,
+        [text, solution],
         function (err) {
           if (err) reject(err);
           else resolve(this.changes);
