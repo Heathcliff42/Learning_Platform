@@ -2,8 +2,8 @@
  * @Author: Lukas Kroczek
  * @Date: 2025-03-07
  * @Description: Gap Text functionality for Learning Mode
- * @Version: 1.0.1
- * @LastUpdate: 2025-03-10
+ * @Version: 1.0.2
+ * @LastUpdate: 2025-03-24
  */
 
 import { styleText } from "node:util";
@@ -12,9 +12,9 @@ import { prompt } from "./displaySelectionMenu.js";
 /**
  * Implements the gap text mode functionality
  * @param {Array} gaptexts - Array of gaptext data [text with gaps, solution]
- * @returns {void}
+ * @returns {Promise<Object>} - Statistics from the session
  */
-export function GapTextMode(gaptexts) {
+export async function GapTextMode(gaptexts) {
   let idx = [];
   let success = 0;
 
@@ -62,10 +62,19 @@ export function GapTextMode(gaptexts) {
 
   console.clear();
   const successRate = (success / gaptexts.length) * 100;
-  prompt(
-    `You answered ${success} out of ${gaptexts.length} questions correctly.\n` +
-      `That is a ${successRate.toFixed(2)}% success rate.\n` +
-      `Press [Enter] to continue...`
+  console.log(styleText("cyan", "Gap Text Exercise Complete!"));
+  console.log(
+    `You answered ${success} out of ${gaptexts.length} questions correctly.`
   );
+  console.log(`That is a ${successRate.toFixed(2)}% success rate.`);
+
+  await prompt("\nPress [Enter] to continue...");
   console.clear();
+
+  // Return statistics for this session
+  return {
+    totalQuestions: gaptexts.length,
+    correctAnswers: success,
+    averageScore: successRate,
+  };
 }

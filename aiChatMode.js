@@ -2,8 +2,8 @@
  * @Author: Lukas Kroczek
  * @Date: 2025-03-07
  * @Description: AI Chat functionality for Learning Mode
- * @Version: 1.0.3
- * @LastUpdate: 2025-03-14
+ * @Version: 1.0.4
+ * @LastUpdate: 2025-03-24
  */
 
 import { styleText } from "node:util";
@@ -99,7 +99,7 @@ async function selectQuestionCount() {
 /**
  * Implements the AI-powered chat mode functionality
  * @param {string} topic - The topic for the AI to generate questions
- * @returns {void}
+ * @returns {Promise<Object>} - Statistics from the session
  */
 export async function AIChatMode(topic) {
   // Let the user select difficulty
@@ -449,6 +449,13 @@ export async function AIChatMode(topic) {
 
   await prompt("\nPress [Enter] to return to the main menu...");
   console.clear();
+
+  // Return statistics for this session
+  return {
+    totalQuestions: totalQuestions,
+    correctAnswers: Math.round((score / 100) * totalQuestions), // Convert percentage score to questions
+    averageScore: averageScore,
+  };
 }
 
 /**
@@ -670,4 +677,30 @@ async function evaluateAnswerWithAI(
         "Unable to evaluate your answer due to a technical issue. Let's continue with the next question.",
     };
   }
+}
+
+/**
+ * Retries an API request with exponential backoff
+ * @param {Function} apiCall - The API call to retry
+ * @param {number} maxRetries - Maximum number of retries
+ * @returns {Promise<any>} - The API response
+ */
+async function retryAPIRequest(apiCall, maxRetries = 3) {
+  let lastError;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await apiCall();
+    } catch (error) {
+      lastError = error;
+      const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+      console.log(
+        styleText(
+          "yellow",
+          `API request failed, retrying in ${delay / 1000} seconds...`
+        )
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+  throw lastError;
 }
