@@ -74,15 +74,12 @@ async function selectTopic(db, mode) {
     const topicData = await db.getAvailableTopics(mode);
 
     if (!topicData || topicData.length === 0) {
-      console.log(`No topics available for mode "${mode}".`);
-      await prompt("Press Enter to continue...");
-      return; // Go back with no data
+      return [];
     }
     return topicData;
   }
 
   let topicData = await getTopicData();
-  if (!Array.isArray(topicData)) return; // Go back to mode selection
 
   while (true) {
     console.clear();
@@ -105,20 +102,16 @@ async function selectTopic(db, mode) {
 
     if (topicIdx === 1) {
       // Create new topic
+      console.clear();
       const newTopicName = await prompt("Enter name for new topic: ");
       if (newTopicName && newTopicName.trim() !== "") {
         try {
-          // Create topic by saving a placeholder question
-          const placeholderQuestion = [
-            "(Placeholder question)",
-            "(Answer)",
-            "(Wrong 1)",
-            "(Wrong 2)",
-            "(Wrong 3)",
-          ];
-          await db.saveQuestions([placeholderQuestion], newTopicName, mode);
-          console.log(`Topic "${newTopicName}" created successfully.`);
-          await prompt("Press Enter to continue...");
+          if (mode === "Gaptext") {
+            await addGaptext(db, topic);
+          } else {
+            await addQuestion(db, mode, newTopicName);
+          }
+          topicData = await getTopicData();
         } catch (error) {
           console.error("Error creating new topic:", error);
           await prompt("Press Enter to continue...");
@@ -130,9 +123,8 @@ async function selectTopic(db, mode) {
     // Selected a valid topic, move to question management (layer 3)
     const selectedTopic = topicData[topicIdx - 2]; // Adjust for the two navigation options
     const answer = await manageQuestions(db, mode, selectedTopic);
-    if (answer === "DELETE") {
+    if (!answer) {
       topicData = await getTopicData();
-      if (!Array.isArray(topicData)) return; // Go back to mode selection
     }
   }
 }
