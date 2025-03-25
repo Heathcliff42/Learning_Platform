@@ -9,9 +9,9 @@
 
 import { styleText } from "node:util";
 import { displaySelectionMenu, prompt } from "./displaySelectionMenu.js";
-import { LearningMode } from "./LearningMode.js";
-import { ManagementMode } from "./ManagmentMode.js";
-import { StatSheet } from "./statSheet.js";
+import { learningMode } from "./learningMode.js";
+import { managementMode } from "./managementMode.js";
+import { statSheet } from "./statSheet.js";
 import { selectUserProfile } from "./profileManager.js";
 import { MyDatabase } from "./data/database.js";
 import { _mode, _topic, _question } from "./data/questions.js";
@@ -97,13 +97,13 @@ async function main() {
         console.clear();
         process.exit();
       case 1:
-        await LearningMode(db, currentUserId);
+        await learningMode(db, currentUserId);
         break;
       case 2:
-        await ManagementMode(db);
+        await managementMode(db);
         break;
       case 3:
-        await StatSheet(db, currentUserId);
+        await statSheet(db, currentUserId);
         break;
       default:
         // Index out of range, try again or exit
@@ -122,59 +122,4 @@ main();
 
 /*
 db.close();
-*/
-/*
-while (true) {
-  operationidx = select operation mode
-  switch (operationidx) {
-    case 0:
-      while (true) {
-        topicidx = -1
-        while (topicidx === -1) {
-          modeidx = select mode
-          topicdata = getAvailableTopics(modedata[modeidx])
-          topicidx = select topicdata
-        }
-        switch (modeidx) {
-          case 0:
-            start multiple choice with questions of topic[topicidx]
-            break
-          case 1:
-            start gap text with questions of topic[topicidx]
-            break
-          default:
-            index out of range, try again or exit
-            break
-        }
-      }
-      break
-    case 1:
-      while (true) {
-        manageidx = select management mode
-        switch (manageidx) {
-          case 0:
-            Create a new category and save it
-            break
-          case 1:
-            Rename a category and save it
-            break
-          case 2:
-            Edit questions and answers and save them
-            break
-          case 3:
-            Generate questions and answers through AI and save them
-            break
-          case >= 4:
-            Somthing else
-            break
-          default:
-            break
-        }
-      }
-      break
-    default:
-      process.exit()
-      break
-  }
-}
 */

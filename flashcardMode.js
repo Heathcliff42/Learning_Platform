@@ -14,7 +14,7 @@ import { prompt } from "./displaySelectionMenu.js";
  * @param {Array} questions - Array of question data
  * @returns {Promise<Object>} - Statistics from the session
  */
-export async function FlashcardMode(questions) {
+export async function flashcardMode(questions) {
   let idx = [];
   let selfRatedSuccess = 0;
 

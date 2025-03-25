@@ -14,7 +14,7 @@ import { prompt } from "./displaySelectionMenu.js";
  * @param {Array} gaptexts - Array of gaptext data [text with gaps, solution]
  * @returns {Promise<Object>} - Statistics from the session
  */
-export async function GapTextMode(gaptexts) {
+export async function gapTextMode(gaptexts) {
   let idx = [];
   let success = 0;
 

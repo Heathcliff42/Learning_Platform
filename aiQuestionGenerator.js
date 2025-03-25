@@ -42,7 +42,6 @@ async function retryAPIRequest(apiCall, maxRetries = 3) {
 /**
  * Generates multiple choice questions for a given topic
  * @param {string} topic - The topic to generate questions for
- * @param {string} difficulty - Difficulty level (easy, medium, hard, expert)
  * @param {Array} existingQuestions - List of existing questions to avoid duplicates
  * @param {number} count - Number of questions to generate
  * @returns {Promise<Array>} Array of generated questions in the format [question, correct, wrong1, wrong2, wrong3]

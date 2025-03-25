@@ -101,7 +101,7 @@ async function selectQuestionCount() {
  * @param {string} topic - The topic for the AI to generate questions
  * @returns {Promise<Object>} - Statistics from the session
  */
-export async function AIChatMode(topic) {
+export async function aiChatMode(topic) {
   // Let the user select difficulty
   const selectedDifficulty = await selectDifficulty();
 

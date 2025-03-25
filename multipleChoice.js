@@ -15,7 +15,7 @@ import { prompt, displaySelectionMenu } from "./displaySelectionMenu.js";
  * @param {Array} questions - Array of question data
  * @returns {Promise<Object>} - Statistics from the session
  */
-export async function MultipleChoiceMode(questions) {
+export async function multipleChoiceMode(questions) {
   let idx = [];
   let success = 0;
 

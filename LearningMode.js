@@ -8,12 +8,10 @@
  */
 
 import { displaySelectionMenu, prompt } from "./displaySelectionMenu.js";
-import { MultipleChoiceMode } from "./multipleChoice.js";
-import { GapTextMode } from "./gapTextMode.js";
-import { FlashcardMode } from "./flashcardMode.js";
-import { AIChatMode } from "./aiChatMode.js";
-
-export { LearningMode };
+import { multipleChoiceMode } from "./multipleChoice.js";
+import { gapTextMode } from "./gapTextMode.js";
+import { flashcardMode } from "./flashcardMode.js";
+import { aiChatMode } from "./aiChatMode.js";
 
 /**
  * Main entry point for Learning Mode
@@ -21,7 +19,7 @@ export { LearningMode };
  * @param {number} userId - Current user ID
  * @returns {Promise<void>}
  */
-async function LearningMode(db, userId) {
+export async function learningMode(db, userId) {
   let topicData;
   const modeData = await db.getAllModes();
 
@@ -87,20 +85,20 @@ async function LearningMode(db, userId) {
       // For Gaptext mode, use the special getGaptexts method
       if (selectedMode === "Gaptext") {
         const gaptexts = await db.getGaptexts(selectedTopic);
-        results = await GapTextMode(gaptexts);
+        results = await gapTextMode(gaptexts);
       }
       // For AI Chat, no need to retrieve questions
       else if (selectedMode === "AI Chat") {
-        results = await AIChatMode(selectedTopic);
+        results = await aiChatMode(selectedTopic);
       }
       // For other modes (Multiple Choice and Flashcard), use getQuestions method
       else {
         const questions = await db.getQuestions(selectedMode, selectedTopic);
 
         if (selectedMode === "Multiple Choice") {
-          results = await MultipleChoiceMode(questions);
+          results = await multipleChoiceMode(questions);
         } else if (selectedMode === "Flashcard") {
-          results = await FlashcardMode(questions);
+          results = await flashcardMode(questions);
         }
       }
 

@@ -15,7 +15,7 @@ import { prompt, displaySelectionMenu } from "./displaySelectionMenu.js";
  * @param {number} userId - Current user ID
  * @returns {Promise<void>}
  */
-export async function StatSheet(db, userId) {
+export async function statSheet(db, userId) {
   console.clear();
   console.log(styleText("cyan", "Learning Platform - Statistics"));
   console.log("─".repeat(50));

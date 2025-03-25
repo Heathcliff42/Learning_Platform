@@ -16,14 +16,12 @@ import {
   reviewGeneratedGaptexts,
 } from "./aiQuestionGenerator.js";
 
-export { ManagementMode };
-
 /**
  * Main entry point for Management Mode
  * @param {Object} db - Database instance
  * @returns {Promise<void>}
  */
-async function ManagementMode(db) {
+export async function managementMode(db) {
   // Start with mode selection - first layer
   await selectMode(db);
 }
