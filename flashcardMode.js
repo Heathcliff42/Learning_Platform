@@ -14,11 +14,7 @@ import { prompt } from "./displaySelectionMenu.js";
  * @param {Array} questions - Array of question data
  * @returns {Promise<Object>} - Statistics from the session
  */
-<<<<<<< HEAD
-export async function FlashcardMode(questions) {
-=======
 export async function flashcardMode(questions) {
->>>>>>> 0328022f2680b57ca3304448675672009d540037
   let idx = [];
   let selfRatedSuccess = 0;
 
@@ -61,9 +57,6 @@ export async function flashcardMode(questions) {
   // After the last card, ask users to rate their own performance
   console.clear();
   console.log(styleText("cyan", "Flashcard Review Complete!"));
-<<<<<<< HEAD
-  await prompt("Press [Enter] to return to the main menu...");
-=======
   console.log("How many flashcards do you think you knew correctly?");
   const userInput = await prompt(`Enter a number (0-${questions.length}): `);
 
@@ -89,7 +82,6 @@ export async function flashcardMode(questions) {
   console.log(`That is a ${successRate.toFixed(2)}% self-rated success rate.`);
 
   await prompt("\nPress [Enter] to continue...");
->>>>>>> 0328022f2680b57ca3304448675672009d540037
   console.clear();
 
   // Return statistics for this session

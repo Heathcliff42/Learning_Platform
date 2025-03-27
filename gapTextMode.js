@@ -14,11 +14,7 @@ import { prompt } from "./displaySelectionMenu.js";
  * @param {Array} gaptexts - Array of gaptext data [text with gaps, solution]
  * @returns {Promise<Object>} - Statistics from the session
  */
-<<<<<<< HEAD
-export async function GapTextMode(gaptexts) {
-=======
 export async function gapTextMode(gaptexts) {
->>>>>>> 0328022f2680b57ca3304448675672009d540037
   let idx = [];
   let success = 0;
 
@@ -66,16 +62,9 @@ export async function gapTextMode(gaptexts) {
 
   console.clear();
   const successRate = (success / gaptexts.length) * 100;
-<<<<<<< HEAD
-  await prompt(
-    `You answered ${success} out of ${gaptexts.length} questions correctly.\n` +
-      `That is a ${successRate.toFixed(2)}% success rate.\n` +
-      `Press [Enter] to continue...`
-=======
   console.log(styleText("cyan", "Gap Text Exercise Complete!"));
   console.log(
     `You answered ${success} out of ${gaptexts.length} questions correctly.`
->>>>>>> 0328022f2680b57ca3304448675672009d540037
   );
   console.log(`That is a ${successRate.toFixed(2)}% success rate.`);
 
