@@ -74,7 +74,7 @@ export async function generateQuestionsWithAI(topic, existingQuestions, count) {
   try {
     const response = await retryAPIRequest(() =>
       openai.chat.completions.create({
-        model: "gpt-3.5-turbo-16k",
+        model: "gpt-3.5-turbo",
         messages: [
           {
             role: "system",
