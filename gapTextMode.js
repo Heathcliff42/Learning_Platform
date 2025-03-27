@@ -35,7 +35,7 @@ export async function gapTextMode(gaptexts) {
     const correctAnswer = gaptexts[idx[i]][1];
 
     console.log("\nFill in the gap:");
-    const userAnswer = prompt(" > ");
+    const userAnswer = await prompt(" > ");
 
     console.clear();
     console.log(`Question ${i + 1}:`);
@@ -57,7 +57,7 @@ export async function gapTextMode(gaptexts) {
       );
     }
 
-    prompt("\nPress [Enter] to continue...");
+    await prompt("\nPress [Enter] to continue...");
   }
 
   console.clear();

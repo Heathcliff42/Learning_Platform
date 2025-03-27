@@ -27,7 +27,7 @@ export async function flashcardMode(questions) {
   console.log("Each flashcard will show the front side first.");
   console.log("Press [Enter] to flip the card and see the answer.");
   console.log("After seeing the answer, press [Enter] to go to the next card.");
-  prompt("\nPress [Enter] to begin...");
+  await prompt("\nPress [Enter] to begin...");
 
   for (let i = 0; i < questions.length; i++) {
     // Front side of flashcard (question)
@@ -36,7 +36,7 @@ export async function flashcardMode(questions) {
     console.log("─".repeat(30));
     console.log(styleText("yellow", "\nQuestion:"));
     console.log(questions[idx[i]][0]);
-    prompt("\nPress [Enter] to reveal answer...");
+    await prompt("\nPress [Enter] to reveal answer...");
 
     // Back side of flashcard (answer)
     console.clear();
@@ -48,9 +48,9 @@ export async function flashcardMode(questions) {
     console.log(questions[idx[i]][1]);
 
     if (i < questions.length - 1) {
-      prompt("\nPress [Enter] for next card...");
+      await prompt("\nPress [Enter] for next card...");
     } else {
-      prompt("\nPress [Enter] to finish flashcard review...");
+      await prompt("\nPress [Enter] to finish flashcard review...");
     }
   }
 
