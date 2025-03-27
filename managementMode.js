@@ -98,10 +98,20 @@ async function selectTopic(db, mode) {
       return; // Go back to mode selection
     }
 
+    let DBTopicByName;
     if (topicIdx === 1) {
       // Create new topic
       console.clear();
-      const newTopicName = await prompt("Enter name for new topic: ");
+      let newTopicName;
+      do {
+        newTopicName = await prompt("Enter name for new topic: ");
+        DBTopicByName = await db.getTopicByName(newTopicName);
+
+        if (DBTopicByName) {
+          console.log("This topic already exists");
+        }
+      } while (DBTopicByName);
+
       if (newTopicName && newTopicName.trim() !== "") {
         try {
           if (mode === "Gaptext") {
