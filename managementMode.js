@@ -236,9 +236,7 @@ async function editQuestions(db, mode, topic) {
     return [
       styleText("blue", q[0]), // Question in blue
       styleText("green", q[1]), // Correct answer in green
-      q[2],
-      q[3],
-      q[4], // Wrong answers in normal text
+      ...[q[2], q[3], q[4]].filter((item) => item !== undefined), // Include only defined wrong answers
     ];
   });
 
@@ -247,7 +245,13 @@ async function editQuestions(db, mode, topic) {
     // Show questions with a back option
     const options = [
       "Go back to topic management",
-      ...displayQuestions.map((q) => `${q[0]},${q[1]},${q[2]},${q[3]},${q[4]}`),
+      ...displayQuestions.map((q) =>
+        [
+          q[0],
+          q[1],
+          ...[q[2], q[3], q[4]].filter((item) => item !== undefined),
+        ].join(",")
+      ),
     ];
 
     const questionIdx = await displaySelectionMenu(
@@ -305,9 +309,9 @@ async function editSingleQuestion(db, mode, topic, questions, questionIdx) {
       "Go back to question list",
       `Edit question text:  ${styleText("blue", question[0])}`,
       `Edit correct answer: ${styleText("green", question[1])}`,
-      `Edit wrong answer 1: ${question[2]}`,
-      `Edit wrong answer 2: ${question[3]}`,
-      `Edit wrong answer 3: ${question[4]}`,
+      ...[2, 3, 4]
+        .filter((index) => question[index] !== undefined)
+        .map((index) => `Edit wrong answer ${index - 1}: ${question[index]}`),
       "Delete this question",
     ];
 
@@ -321,7 +325,7 @@ async function editSingleQuestion(db, mode, topic, questions, questionIdx) {
       return; // Go back to question list
     }
 
-    if (editChoice === 6) {
+    if (editChoice === editOptions.length - 1) {
       // Delete question
       const confirmation = await prompt(
         "Are you sure you want to delete this question? (y/n): "
@@ -642,17 +646,25 @@ async function addQuestion(db, mode, topic) {
   }
 
   const correctAnswer = await prompt("Enter correct answer: ");
-  const wrongAnswer1 = await prompt("Enter wrong answer 1: ");
-  const wrongAnswer2 = await prompt("Enter wrong answer 2: ");
-  const wrongAnswer3 = await prompt("Enter wrong answer 3: ");
-
   const newQuestion = [
     question,
     correctAnswer,
-    wrongAnswer1,
-    wrongAnswer2,
-    wrongAnswer3,
+    "placeholder",
+    "placeholder",
+    "placeholder",
   ];
+  if (mode !== "Flashcard") {
+    const wrongAnswer1 = await prompt("Enter wrong answer 1: ");
+    const wrongAnswer2 = await prompt("Enter wrong answer 2: ");
+    const wrongAnswer3 = await prompt("Enter wrong answer 3: ");
+    newQuestion = [
+      question,
+      correctAnswer,
+      wrongAnswer1,
+      wrongAnswer2,
+      wrongAnswer3,
+    ];
+  }
 
   try {
     await db.saveQuestions([newQuestion], topic, mode);

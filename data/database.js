@@ -552,15 +552,15 @@ export class MyDatabase {
           // New values
           newQuestion[0],
           newQuestion[1],
-          newQuestion[2],
-          newQuestion[3],
-          newQuestion[4],
+          newQuestion[2] || "placeholder",
+          newQuestion[3] || "placeholder",
+          newQuestion[4] || "placeholder",
           // Old values for matching
           oldQuestion[0],
           oldQuestion[1],
-          oldQuestion[2],
-          oldQuestion[3],
-          oldQuestion[4],
+          oldQuestion[2] || "placeholder",
+          oldQuestion[3] || "placeholder",
+          oldQuestion[4] || "placeholder",
         ],
         function (err) {
           if (err) reject(err);
