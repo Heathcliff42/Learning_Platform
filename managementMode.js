@@ -105,7 +105,7 @@ async function selectTopic(db, mode) {
       if (newTopicName && newTopicName.trim() !== "") {
         try {
           if (mode === "Gaptext") {
-            await addGaptext(db, topic);
+            await addGaptext(db, newTopicName);
           } else {
             await addQuestion(db, mode, newTopicName);
           }
