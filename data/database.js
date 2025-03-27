@@ -2,8 +2,8 @@
  * @Author: Lukas Kroczek
  * @Date: 2025-02-15
  * @Description: Database operations for the Learning Platform
- * @Version: 1.0.2
- * @LastUpdate: 2025-03-21
+ * @Version: 1.0.3
+ * @LastUpdate: 2025-03-24
  */
 
 import { fileURLToPath } from "url";
@@ -41,6 +41,8 @@ export class MyDatabase {
     this.db.run("DROP TABLE IF EXISTS gaptexts");
     this.db.run("DROP TABLE IF EXISTS topics");
     this.db.run("DROP TABLE IF EXISTS modes");
+    this.db.run("DROP TABLE IF EXISTS users");
+    this.db.run("DROP TABLE IF EXISTS statistics");
     this.initDatabase();
   }
 
@@ -65,6 +67,33 @@ export class MyDatabase {
       CREATE TABLE IF NOT EXISTS modes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE
+      )
+    `);
+
+    // Create users table
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create statistics table to track user performance
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS statistics (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        mode_id INTEGER NOT NULL,
+        topic_id INTEGER NOT NULL,
+        questions_attempted INTEGER DEFAULT 0,
+        questions_correct INTEGER DEFAULT 0,
+        average_score REAL DEFAULT 0,
+        last_played TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (mode_id) REFERENCES modes(id),
+        FOREIGN KEY (topic_id) REFERENCES topics(id),
+        UNIQUE(user_id, mode_id, topic_id)
       )
     `);
 
@@ -630,5 +659,241 @@ export class MyDatabase {
         }
       );
     });
+  }
+
+  /**
+   * Creates a new user profile
+   * @param {string} username - The username for the profile
+   * @returns {Promise<number>} - The ID of the created user
+   */
+  createUser(username) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        "INSERT INTO users (username) VALUES (?)",
+        [username],
+        function (err) {
+          if (err) reject(err);
+          else resolve(this.lastID);
+        }
+      );
+    });
+  }
+
+  /**
+   * Gets all existing user profiles
+   * @returns {Promise<Array<Object>>} - Array of user objects with id and username
+   */
+  getAllUsers() {
+    return new Promise((resolve, reject) => {
+      this.db.all(
+        "SELECT id, username FROM users ORDER BY username",
+        [],
+        (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        }
+      );
+    });
+  }
+
+  /**
+   * Updates statistics after a learning session
+   * @param {number} userId - The user ID
+   * @param {string} modeName - The name of the mode
+   * @param {string} topicName - The name of the topic
+   * @param {number} questionsAttempted - The number of questions attempted
+   * @param {number} questionsCorrect - The number of questions answered correctly
+   * @param {number} averageScore - The average score (percentage)
+   * @returns {Promise<void>}
+   */
+  async updateStatistics(
+    userId,
+    modeName,
+    topicName,
+    questionsAttempted,
+    questionsCorrect,
+    averageScore
+  ) {
+    try {
+      const modeId = await this.getOrCreateMode(modeName);
+      const topicId = await this.getOrCreateTopic(topicName);
+
+      // Check if statistics entry exists
+      const existingStats = await new Promise((resolve, reject) => {
+        this.db.get(
+          "SELECT * FROM statistics WHERE user_id = ? AND mode_id = ? AND topic_id = ?",
+          [userId, modeId, topicId],
+          (err, row) => {
+            if (err) reject(err);
+            else resolve(row);
+          }
+        );
+      });
+
+      if (existingStats) {
+        // Update existing statistics
+        await new Promise((resolve, reject) => {
+          this.db.run(
+            `UPDATE statistics 
+             SET questions_attempted = questions_attempted + ?,
+                 questions_correct = questions_correct + ?,
+                 average_score = (average_score * questions_attempted + ? * ?) / (questions_attempted + ?),
+                 last_played = CURRENT_TIMESTAMP
+             WHERE user_id = ? AND mode_id = ? AND topic_id = ?`,
+            [
+              questionsAttempted,
+              questionsCorrect,
+              averageScore,
+              questionsAttempted,
+              questionsAttempted,
+              userId,
+              modeId,
+              topicId,
+            ],
+            function (err) {
+              if (err) reject(err);
+              else resolve(this.changes);
+            }
+          );
+        });
+      } else {
+        // Create new statistics entry
+        await new Promise((resolve, reject) => {
+          this.db.run(
+            `INSERT INTO statistics 
+             (user_id, mode_id, topic_id, questions_attempted, questions_correct, average_score)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+              userId,
+              modeId,
+              topicId,
+              questionsAttempted,
+              questionsCorrect,
+              averageScore,
+            ],
+            function (err) {
+              if (err) reject(err);
+              else resolve(this.lastID);
+            }
+          );
+        });
+      }
+    } catch (error) {
+      console.error("Error updating statistics:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Gets statistics for a specific user
+   * @param {number} userId - The user ID
+   * @returns {Promise<Object>} - Object containing overall, topic-wise and mode-wise statistics
+   */
+  async getStatistics(userId) {
+    try {
+      // Get overall statistics
+      const overall = await new Promise((resolve, reject) => {
+        this.db.get(
+          `SELECT 
+            SUM(questions_attempted) as total_attempted,
+            SUM(questions_correct) as total_correct,
+            CASE 
+              WHEN SUM(questions_attempted) > 0 
+              THEN (SUM(questions_correct) * 100.0 / SUM(questions_attempted)) 
+              ELSE 0 
+            END as overall_success_rate
+          FROM statistics
+          WHERE user_id = ?`,
+          [userId],
+          (err, row) => {
+            if (err) reject(err);
+            else resolve(row);
+          }
+        );
+      });
+
+      // Get topic-wise statistics
+      const topicStats = await new Promise((resolve, reject) => {
+        this.db.all(
+          `SELECT 
+            t.name as topic_name,
+            SUM(s.questions_attempted) as attempted,
+            SUM(s.questions_correct) as correct,
+            CASE 
+              WHEN SUM(s.questions_attempted) > 0 
+              THEN (SUM(s.questions_correct) * 100.0 / SUM(s.questions_attempted)) 
+              ELSE 0 
+            END as success_rate
+          FROM statistics s
+          JOIN topics t ON s.topic_id = t.id
+          WHERE s.user_id = ?
+          GROUP BY s.topic_id
+          ORDER BY success_rate DESC`,
+          [userId],
+          (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+          }
+        );
+      });
+
+      // Get mode-wise statistics
+      const modeStats = await new Promise((resolve, reject) => {
+        this.db.all(
+          `SELECT 
+            m.name as mode_name,
+            SUM(s.questions_attempted) as attempted,
+            SUM(s.questions_correct) as correct,
+            CASE 
+              WHEN SUM(s.questions_attempted) > 0 
+              THEN (SUM(s.questions_correct) * 100.0 / SUM(s.questions_attempted)) 
+              ELSE 0 
+            END as success_rate
+          FROM statistics s
+          JOIN modes m ON s.mode_id = m.id
+          WHERE s.user_id = ?
+          GROUP BY s.mode_id
+          ORDER BY success_rate DESC`,
+          [userId],
+          (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+          }
+        );
+      });
+
+      // Get detailed statistics for each topic and mode combination
+      const detailedStats = await new Promise((resolve, reject) => {
+        this.db.all(
+          `SELECT 
+            t.name as topic_name,
+            m.name as mode_name,
+            s.questions_attempted as attempted,
+            s.questions_correct as correct,
+            s.average_score as avg_score,
+            s.last_played as last_played
+          FROM statistics s
+          JOIN topics t ON s.topic_id = t.id
+          JOIN modes m ON s.mode_id = m.id
+          WHERE s.user_id = ?
+          ORDER BY s.last_played DESC`,
+          [userId],
+          (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+          }
+        );
+      });
+
+      return {
+        overall,
+        topicStats,
+        modeStats,
+        detailedStats,
+      };
+    } catch (error) {
+      console.error("Error retrieving statistics:", error);
+      throw error;
+    }
   }
 }

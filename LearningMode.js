@@ -3,24 +3,23 @@
  * @Author: Julian Scharf
  * @Date: 2025-02-03
  * @Description: Learning Mode functionality
- * @Version: 1.0.3
- * @LastUpdate: 2025-03-10
+ * @Version: 1.0.4
+ * @LastUpdate: 2025-03-24
  */
 
 import { displaySelectionMenu, prompt } from "./displaySelectionMenu.js";
-import { MultipleChoiceMode } from "./multipleChoice.js";
-import { GapTextMode } from "./gapTextMode.js";
-import { FlashcardMode } from "./flashcardMode.js";
-import { AIChatMode } from "./aiChatMode.js";
-
-export { LearningMode };
+import { multipleChoiceMode } from "./multipleChoice.js";
+import { gapTextMode } from "./gapTextMode.js";
+import { flashcardMode } from "./flashcardMode.js";
+import { aiChatMode } from "./aiChatMode.js";
 
 /**
  * Main entry point for Learning Mode
  * @param {Object} db - Database instance
+ * @param {number} userId - Current user ID
  * @returns {Promise<void>}
  */
-async function LearningMode(db) {
+export async function learningMode(db, userId) {
   let topicData;
   const modeData = await db.getAllModes();
 
@@ -49,7 +48,7 @@ async function LearningMode(db) {
     if (selectedMode === "AI Chat") {
       topicSelectionOptions.push("Custom topic");
     }
-    
+
     const topicIdx = await displaySelectionMenu(
       topicSelectionOptions,
       `Please select a topic for ${selectedMode}:`,
@@ -63,8 +62,11 @@ async function LearningMode(db) {
 
     // Handle custom topic option for AI Chat mode
     let selectedTopic;
-    
-    if (selectedMode === "AI Chat" && topicIdx === topicSelectionOptions.length - 1) {
+
+    if (
+      selectedMode === "AI Chat" &&
+      topicIdx === topicSelectionOptions.length - 1
+    ) {
       // User selected "Custom topic" option
       selectedTopic = await prompt("Enter your custom topic: ");
       if (!selectedTopic) {
@@ -78,24 +80,38 @@ async function LearningMode(db) {
     }
 
     try {
+      let results = null;
+
       // For Gaptext mode, use the special getGaptexts method
       if (selectedMode === "Gaptext") {
         const gaptexts = await db.getGaptexts(selectedTopic);
-        await GapTextMode(gaptexts);
+        results = await gapTextMode(gaptexts);
       }
       // For AI Chat, no need to retrieve questions
       else if (selectedMode === "AI Chat") {
-        await AIChatMode(selectedTopic);
+        results = await aiChatMode(selectedTopic);
       }
       // For other modes (Multiple Choice and Flashcard), use getQuestions method
       else {
         const questions = await db.getQuestions(selectedMode, selectedTopic);
 
         if (selectedMode === "Multiple Choice") {
-          await MultipleChoiceMode(questions);
+          results = await multipleChoiceMode(questions);
         } else if (selectedMode === "Flashcard") {
-          await FlashcardMode(questions);
+          results = await flashcardMode(questions);
         }
+      }
+
+      // Update statistics if results are available
+      if (results && userId) {
+        await db.updateStatistics(
+          userId,
+          selectedMode,
+          selectedTopic,
+          results.totalQuestions,
+          results.correctAnswers,
+          results.averageScore
+        );
       }
     } catch (error) {
       console.error(`Error in ${selectedMode} mode:`, error);

@@ -3,14 +3,16 @@
  * @Author: Julian Scharf
  * @Date: 2025-02-03
  * @Description: Learning Platform
- * @Version: 1.0.4
- * @LastUpdate: 2025-02-10
+ * @Version: 1.0.5
+ * @LastUpdate: 2025-03-24
  */
 
 import { styleText } from "node:util";
 import { displaySelectionMenu, prompt } from "./displaySelectionMenu.js";
-import { LearningMode } from "./LearningMode.js";
-import { ManagementMode } from "./ManagmentMode.js";
+import { learningMode } from "./learningMode.js";
+import { managementMode } from "./managementMode.js";
+import { statSheet } from "./statSheet.js";
+import { selectUserProfile } from "./profileManager.js";
 import { MyDatabase } from "./data/database.js";
 import { _mode, _topic, _question } from "./data/questions.js";
 const db = await new MyDatabase();
@@ -48,7 +50,8 @@ async function databaseSetup() {
  * @returns {Promise<void>}
  */
 async function main() {
-  let operationData = ["Learning Mode", "Management Mode"];
+  let operationData = ["Learning Mode", "Management Mode", "Statistics"];
+  let currentUserId = null;
 
   console.clear();
   await prompt(
@@ -57,6 +60,25 @@ async function main() {
       "EXIT"
     )}"! \nPress [Enter] to continue...`
   );
+
+  // Profile selection at startup
+  try {
+    currentUserId = await selectUserProfile(db);
+
+    // Get the username for welcome message
+    const users = await db.getAllUsers();
+    const currentUser = users.find((user) => user.id === currentUserId);
+
+    console.clear();
+    console.log(styleText("green", `Welcome, ${currentUser.username}!`));
+    await prompt("Press [Enter] to continue...");
+  } catch (error) {
+    console.error("Error during profile selection:", error);
+    console.log(
+      styleText("red", "Error loading profiles. Using default settings.")
+    );
+    await prompt("Press [Enter] to continue...");
+  }
 
   let operatingIdx = -1;
 
@@ -75,10 +97,13 @@ async function main() {
         console.clear();
         process.exit();
       case 1:
-        await LearningMode(db);
+        await learningMode(db, currentUserId);
         break;
       case 2:
-        await ManagementMode(db);
+        await managementMode(db);
+        break;
+      case 3:
+        await statSheet(db, currentUserId);
         break;
       default:
         // Index out of range, try again or exit
@@ -86,6 +111,7 @@ async function main() {
     }
   }
 }
+
 /*
 await db.reset();
 await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
@@ -96,59 +122,4 @@ main();
 
 /*
 db.close();
-*/
-/*
-while (true) {
-  operationidx = select operation mode
-  switch (operationidx) {
-    case 0:
-      while (true) {
-        topicidx = -1
-        while (topicidx === -1) {
-          modeidx = select mode
-          topicdata = getAvailableTopics(modedata[modeidx])
-          topicidx = select topicdata
-        }
-        switch (modeidx) {
-          case 0:
-            start multiple choice with questions of topic[topicidx]
-            break
-          case 1:
-            start gap text with questions of topic[topicidx]
-            break
-          default:
-            index out of range, try again or exit
-            break
-        }
-      }
-      break
-    case 1:
-      while (true) {
-        manageidx = select management mode
-        switch (manageidx) {
-          case 0:
-            Create a new category and save it
-            break
-          case 1:
-            Rename a category and save it
-            break
-          case 2:
-            Edit questions and answers and save them
-            break
-          case 3:
-            Generate questions and answers through AI and save them
-            break
-          case >= 4:
-            Somthing else
-            break
-          default:
-            break
-        }
-      }
-      break
-    default:
-      process.exit()
-      break
-  }
-}
 */

@@ -3,8 +3,8 @@
  * @Author: Julian Scharf
  * @Date: 2025-03-05
  * @Description: Multiple Choice functionality for Learning Mode
- * @Version: 1.0.1
- * @LastUpdate: 2025-03-10
+ * @Version: 1.0.2
+ * @LastUpdate: 2025-03-24
  */
 
 import { styleText } from "node:util";
@@ -13,9 +13,9 @@ import { prompt, displaySelectionMenu } from "./displaySelectionMenu.js";
 /**
  * Implements the standard quiz mode functionality (multiple choice)
  * @param {Array} questions - Array of question data
- * @returns {void}
+ * @returns {Promise<Object>} - Statistics from the session
  */
-export async function MultipleChoiceMode(questions) {
+export async function multipleChoiceMode(questions) {
   let idx = [];
   let success = 0;
 
@@ -94,4 +94,11 @@ export async function MultipleChoiceMode(questions) {
 
   await prompt("\nPress [Enter] to continue...");
   console.clear();
+
+  // Return statistics for this session
+  return {
+    totalQuestions: questions.length,
+    correctAnswers: success,
+    averageScore: successRate,
+  };
 }
