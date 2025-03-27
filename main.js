@@ -58,7 +58,10 @@ async function main() {
     `Welcome to the Learning Platform!\nYou can always exit the programm by typing: "${styleText(
       "red",
       "EXIT"
-    )}"! \nPress [Enter] to continue...`
+    )}" or press ${styleText(
+      "red",
+      "STRG + C"
+    )}! \nPress [Enter] to continue...`
   );
 
   // Profile selection at startup
