@@ -42,14 +42,12 @@ export function prompt(text) {
  * @param {Array<string>} options - Array of menu options
  * @param {string} prompt - Text to display above the menu
  * @param {number} defaultSelection - Initial selection index
- * @param {number} visibleCount - count of visible elements
  * @returns {Promise<number>} Selected option index
  */
 export async function displaySelectionMenu(
   options,
   prompt,
-  defaultSelection = 0,
-  visibleCount = 10
+  defaultSelection = 0
 ) {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -63,13 +61,23 @@ export async function displaySelectionMenu(
     0,
     Math.min(defaultSelection, options.length - 1)
   );
+
+  const calculateVisibleCount = () => {
+    // Dynamically calculate visibleCount based on console height
+    const consoleHeight = process.stdout.rows || 24; // Default to 24 if rows is undefined
+    const reservedLines = 5; // Lines reserved for prompt, instructions, etc.
+    return Math.max(1, consoleHeight - reservedLines);
+  };
+
+  let visibleCount = calculateVisibleCount();
   let offset = Math.max(0, currentSelection - Math.floor(visibleCount / 2));
 
   const renderMenu = () => {
+    visibleCount = calculateVisibleCount(); // Recalculate in case console size changes
     console.clear();
     console.log(prompt);
 
-    // Scrollbar Logik: Sicherstellen, dass der aktuelle Auswahlbereich sichtbar ist
+    // Scrollbar logic: Ensure the current selection is visible
     if (currentSelection < offset) {
       offset = currentSelection;
     } else if (currentSelection >= offset + visibleCount) {
