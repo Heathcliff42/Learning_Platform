@@ -14,7 +14,7 @@ import { prompt } from "./displaySelectionMenu.js";
  * @param {Array} gaptexts - Array of gaptext data [text with gaps, solution]
  * @returns {void}
  */
-export function GapTextMode(gaptexts) {
+export async function GapTextMode(gaptexts) {
   let idx = [];
   let success = 0;
 
@@ -35,7 +35,7 @@ export function GapTextMode(gaptexts) {
     const correctAnswer = gaptexts[idx[i]][1];
 
     console.log("\nFill in the gap:");
-    const userAnswer = prompt(" > ");
+    const userAnswer = await prompt(" > ");
 
     console.clear();
     console.log(`Question ${i + 1}:`);
@@ -57,12 +57,12 @@ export function GapTextMode(gaptexts) {
       );
     }
 
-    prompt("\nPress [Enter] to continue...");
+    await prompt("\nPress [Enter] to continue...");
   }
 
   console.clear();
   const successRate = (success / gaptexts.length) * 100;
-  prompt(
+  await prompt(
     `You answered ${success} out of ${gaptexts.length} questions correctly.\n` +
       `That is a ${successRate.toFixed(2)}% success rate.\n` +
       `Press [Enter] to continue...`
