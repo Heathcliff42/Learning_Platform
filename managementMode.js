@@ -98,19 +98,14 @@ async function selectTopic(db, mode) {
       return; // Go back to mode selection
     }
 
-    let DBTopicByName;
     if (topicIdx === 1) {
       // Create new topic
       console.clear();
-      let newTopicName;
-      do {
-        newTopicName = await prompt("Enter name for new topic: ");
-        DBTopicByName = await db.getTopicByName(newTopicName);
 
-        if (DBTopicByName) {
-          console.log("This topic already exists");
-        }
-      } while (DBTopicByName);
+      const newTopicName = await ensureUniqueTopicName(
+        db,
+        "Enter name for new topic: "
+      );
 
       if (newTopicName && newTopicName.trim() !== "") {
         try {
@@ -200,7 +195,10 @@ async function manageQuestions(db, mode, topic) {
         break;
 
       case 4: // Rename topic
-        const newName = await prompt(`Enter new name for topic "${topic}": `);
+        const newName = await ensureUniqueTopicName(
+          db,
+          `Enter new name for topic "${topic}": `
+        );
         if (newName && newName.trim() !== "") {
           try {
             await db.renameCategory(topic, newName);
@@ -965,4 +963,24 @@ async function selectGaptextCount() {
   }
 
   return parseInt(gaptextCountOptions[selectedIndex]);
+}
+
+/**
+ * Ensure that the new topic name is unique
+ * @param {Object} db - Database instance
+ * @param {String} message - Message to display
+ * @returns {string} - Unique topic name
+ */
+async function ensureUniqueTopicName(db, message) {
+  let newTopicName;
+  let DBTopicByName;
+  do {
+    newTopicName = await prompt(message);
+    DBTopicByName = await db.getTopicByName(newTopicName);
+
+    if (DBTopicByName) {
+      console.log("This topic already exists");
+    }
+  } while (DBTopicByName);
+  return newTopicName;
 }
