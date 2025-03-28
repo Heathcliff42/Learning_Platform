@@ -48,3 +48,7 @@ Platform for learning and quizzing
   - [ ] Online compatibility, PVP
   - [ ] Language Support for German and English
     - [ ] Support for other Languages (via A.I.)
+
+Important Setup:
+
+- save API-Key as environmental variable 'OPENAI_API_KEY'
