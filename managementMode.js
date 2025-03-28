@@ -131,7 +131,7 @@ async function selectTopic(db, mode) {
     // Selected a valid topic, move to question management (layer 3)
     const selectedTopic = topicData[topicIdx - 2]; // Adjust for the two navigation options
     const answer = await manageQuestions(db, mode, selectedTopic);
-    if (!answer) {
+    if (answer) {
       topicData = await getTopicData();
     }
   }
