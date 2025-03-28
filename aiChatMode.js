@@ -511,7 +511,7 @@ async function generateSingleQuestion(
   try {
     const response = await retryAPIRequest(() =>
       openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
@@ -609,7 +609,7 @@ async function evaluateAnswerWithAI(
   try {
     const response = await retryAPIRequest(() =>
       openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",

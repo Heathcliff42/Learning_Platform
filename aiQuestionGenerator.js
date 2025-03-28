@@ -74,7 +74,7 @@ export async function generateQuestionsWithAI(topic, existingQuestions, count) {
   try {
     const response = await retryAPIRequest(() =>
       openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
@@ -184,7 +184,7 @@ export async function generateGaptextsWithAI(topic, existingGaptexts, count) {
   try {
     const response = await retryAPIRequest(() =>
       openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
