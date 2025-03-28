@@ -373,6 +373,26 @@ export class MyDatabase {
         );
       });
     }
+    if (mode === "Gaptext") {
+      return new Promise((resolve, reject) => {
+        this.db.all(
+          `
+          SELECT DISTINCT t.name 
+          FROM topics t
+          JOIN gaptexts g ON t.id = g.topic_id
+          `,
+          [],
+          (err, rows) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+            resolve(rows.map((row) => row.name));
+          }
+        );
+      });
+    }
+
     return new Promise((resolve, reject) => {
       this.db.all(
         `
@@ -607,7 +627,7 @@ export class MyDatabase {
    * @param {number} topicID - ID of the topic
    * @returns {Promise<number>} - Number of rows affected
    */
-  deleteQuestionByTopcID(topicID) {
+  deleteQuestionByTopicID(topicID) {
     return new Promise((resolve, reject) => {
       this.db.run(
         "DELETE FROM questions where topic_id = ?",
@@ -653,6 +673,19 @@ export class MyDatabase {
           AND solution = ?
         `,
         [text, solution],
+        function (err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        }
+      );
+    });
+  }
+
+  deleteGaptextByTopicID(topicID) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        "DELETE FROM gaptexts where topic_id = ?",
+        [topicID],
         function (err) {
           if (err) reject(err);
           else resolve(this.changes);

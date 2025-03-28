@@ -216,7 +216,7 @@ async function manageQuestions(db, mode, topic) {
         break;
 
       case 5: // Delete topic
-        await deleteTopic(db, topic);
+        await deleteTopic(db, topic, mode);
         return "DELETE";
     }
   }
@@ -692,7 +692,7 @@ async function addQuestion(db, mode, topic) {
  * @param {string} topic - Topic to delete
  * @returns {Promise<void>}
  */
-async function deleteTopic(db, topic) {
+async function deleteTopic(db, topic, mode) {
   console.clear();
   const answer = await prompt(
     `Are you sure you want to delete the topic "${styleText(
@@ -704,9 +704,15 @@ async function deleteTopic(db, topic) {
     try {
       const TopicData = await db.getTopicByName(topic);
 
-      await db.deleteQuestionByTopcID(TopicData.id).then((deletedRows) => {
-        console.log(`${deletedRows} Questions got deleted`);
-      });
+      if (mode === "Gaptext") {
+        await db.deleteGaptextByTopicID(TopicData.id).then((deletedRows) => {
+          console.log(`${deletedRows} Gaptexts got deleted`);
+        });
+      } else {
+        await db.deleteQuestionByTopicID(TopicData.id).then((deletedRows) => {
+          console.log(`${deletedRows} Questions got deleted`);
+        });
+      }
       db.deleteTopicByName(topic);
       await prompt("topic and all questions got deleted");
     } catch (error) {
