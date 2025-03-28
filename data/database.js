@@ -51,27 +51,37 @@ export class MyDatabase {
    * @returns {void}
    */
   initDatabase() {
-    // Enable foreign key support
-    this.db.run("PRAGMA foreign_keys = ON");
+    this.db.serialize(() => {
+      // Enable foreign key support
+      this.db.run("PRAGMA foreign_keys = ON");
 
-    // Create topics table
-    this.db.run(`
+      // Create topics table
+      this.db.run(`
       CREATE TABLE IF NOT EXISTS topics (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE
       )
     `);
 
-    // Create modes table
-    this.db.run(`
+      // Create modes table
+      this.db.run(`
       CREATE TABLE IF NOT EXISTS modes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE
       )
     `);
 
-    // Create users table
-    this.db.run(`
+      // Insert default modes
+      this.db.run(`
+      INSERT OR IGNORE INTO modes (name) VALUES 
+      ('Multiple Choice'), 
+      ('AI Chat'), 
+      ('Flashcard'), 
+      ('Gaptext')
+    `);
+
+      // Create users table
+      this.db.run(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
@@ -79,8 +89,8 @@ export class MyDatabase {
       )
     `);
 
-    // Create statistics table to track user performance
-    this.db.run(`
+      // Create statistics table
+      this.db.run(`
       CREATE TABLE IF NOT EXISTS statistics (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
@@ -97,8 +107,8 @@ export class MyDatabase {
       )
     `);
 
-    // Create questions table with foreign keys
-    this.db.run(`
+      // Create questions table
+      this.db.run(`
       CREATE TABLE IF NOT EXISTS questions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         question TEXT NOT NULL,
@@ -113,8 +123,8 @@ export class MyDatabase {
       )
     `);
 
-    // Create gaptexts table with foreign keys
-    this.db.run(`
+      // Create gaptexts table
+      this.db.run(`
       CREATE TABLE IF NOT EXISTS gaptexts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         text TEXT NOT NULL,
@@ -123,6 +133,7 @@ export class MyDatabase {
         FOREIGN KEY (topic_id) REFERENCES topics(id)
       )
     `);
+    });
   }
 
   /**

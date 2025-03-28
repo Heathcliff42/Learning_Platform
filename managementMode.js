@@ -654,7 +654,7 @@ async function addQuestion(db, mode, topic) {
   }
 
   const correctAnswer = await prompt("Enter correct answer: ");
-  const newQuestion = [
+  let newQuestion = [
     question,
     correctAnswer,
     "placeholder",
