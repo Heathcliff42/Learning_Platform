@@ -49,6 +49,8 @@ Platform for learning and quizzing
   - [ ] Language Support for German and English
     - [ ] Support for other Languages (via A.I.)
 
-Important Setup:
+Important information:
 
 - save API-Key as environmental variable 'OPENAI_API_KEY'
+- AI sometimes returns wrong things (no json, questionable rating in chat mode)
+- AI needs internet connection, rest works offline
