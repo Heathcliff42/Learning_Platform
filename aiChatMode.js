@@ -230,13 +230,29 @@ export async function aiChatMode(topic) {
     const dontKnowMatch = userAnswer.match(/^i don'?t know\s+(.+)$/i);
     if (dontKnowMatch) {
       const skippedTopic = dontKnowMatch[1].trim();
-      console.log(
-        styleText(
-          "yellow",
-          `Skipping questions related to "${skippedTopic}"...`
-        )
-      );
-      skippedTopics.add(skippedTopic.toLowerCase());
+      if (skippedTopic === "") {
+        console.log(styleText("yellow", "Skipping question..."));
+      } else {
+        // Validate the skipped topic as an existing word or phrase
+        const isValidTopic = await validateTopicIsReal(skippedTopic);
+
+        if (isValidTopic) {
+          console.log(
+            styleText(
+              "yellow",
+              `Skipping questions related to "${skippedTopic}"...`
+            )
+          );
+          skippedTopics.add(skippedTopic.toLowerCase());
+        } else {
+          console.log(
+            styleText(
+              "yellow",
+              `"${skippedTopic}" doesn't seem to be a valid topic. Please use a real word or phrase.`
+            )
+          );
+        }
+      }
 
       await prompt("\nPress [Enter] to continue...");
       continue; // Skip to the next question without counting this one
@@ -707,4 +723,41 @@ async function retryAPIRequest(apiCall, maxRetries = 3) {
     }
   }
   throw lastError;
+}
+
+/**
+ * Validates if a topic is a real word or phrase using OpenAI
+ * @param {string} topic - The topic to validate
+ * @returns {Promise<boolean>} - True if the topic is valid, false otherwise
+ */
+async function validateTopicIsReal(topic) {
+  try {
+    const response = await retryAPIRequest(() =>
+      openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `Determine if the following text is a real word or phrase related to any topic 
+            (as opposed to gibberish or random characters).
+            
+            Text: "${topic}"
+            
+            Return exactly "1" if it's a real word or phrase, and "0" if it appears to be gibberish or random.
+            Only respond with a single digit: 0 or 1.`,
+          },
+        ],
+        max_tokens: 1,
+        temperature: 0,
+      })
+    );
+
+    const result = response.choices[0].message.content.trim();
+    return result === "1";
+  } catch (error) {
+    console.log(
+      styleText("yellow", "Error validating topic, assuming it's valid.")
+    );
+    return true; // Default to true in case of API error
+  }
 }

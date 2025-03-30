@@ -465,6 +465,12 @@ async function editSingleGaptext(db, topic, gaptexts, gaptextIdx) {
     console.log(
       styleText("cyan", `Editing Gaptext - Topic: ${styleText("blue", topic)}`)
     );
+    console.log(
+      styleText(
+        "yellow",
+        "\nEach text should contain exactly one gap, consisting of three [3] underscores [_]"
+      )
+    );
 
     // Show current gaptext
     console.log("\nCurrent Gaptext:");
@@ -581,9 +587,12 @@ async function addGaptext(db, topic) {
     styleText("cyan", `Adding New Gaptext - Topic: ${styleText("blue", topic)}`)
   );
   console.log(
-    styleText("yellow", "\nEnter text with [gaps] in square brackets:")
+    styleText("yellow", "\nEnter text with [gap] in square brackets:")
   );
   console.log("Example: The capital of France is [Paris].");
+  console.log(
+    styleText("yellow", "NOTE: Each text should contain exactly one gap.")
+  );
   console.log("\nType your text (empty line to finish):");
 
   let gaptextWithGaps = "";
@@ -605,7 +614,18 @@ async function addGaptext(db, topic) {
     console.log(
       styleText(
         "red",
-        "Error: No gaps found in the text. Use [square brackets] to mark gaps."
+        "Error: No gap found in the text. Use [square brackets] to mark the gap."
+      )
+    );
+    await prompt("Press Enter to continue...");
+    return;
+  }
+
+  if (matches.length > 1) {
+    console.log(
+      styleText(
+        "red",
+        "Error: Multiple gaps found. Each text should contain exactly one gap."
       )
     );
     await prompt("Press Enter to continue...");
@@ -613,8 +633,8 @@ async function addGaptext(db, topic) {
   }
 
   // Create the gaptext and solution
-  const gapTextForDB = gaptextWithGaps.replace(/\[([^\]]+)\]/g, "_____");
-  const solutionText = matches.map((match) => match.slice(1, -1)).join("|");
+  const gapTextForDB = gaptextWithGaps.replace(/\[([^\]]+)\]/g, "___");
+  const solutionText = matches[0].slice(1, -1);
 
   try {
     await db.saveGaptexts([[gapTextForDB, solutionText]], topic);
