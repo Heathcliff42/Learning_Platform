@@ -2,13 +2,17 @@
  * @Author: Lukas Kroczek
  * @Date: 2025-03-07
  * @Description: AI Chat functionality for Learning Mode
- * @Version: 1.0.4
- * @LastUpdate: 2025-03-24
+ * @Version: 1.0.5
+ * @LastUpdate: 2025-03-30
  */
 
+import dotenv from "dotenv";
 import { styleText } from "node:util";
 import { prompt, displaySelectionMenu } from "./displaySelectionMenu.js";
 import OpenAI from "openai";
+
+// Load environment variables from .env file
+dotenv.config();
 
 // Securely access the OpenAI API key
 const openai = new OpenAI({

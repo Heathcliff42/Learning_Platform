@@ -2,13 +2,17 @@
  * @Author: Lukas Kroczek
  * @Date: 2025-03-20
  * @Description: AI-powered question generator for Learning Platform
- * @Version: 1.0.1
- * @LastUpdate: 2025-03-21
+ * @Version: 1.0.2
+ * @LastUpdate: 2025-03-30
  */
 
+import dotenv from "dotenv";
 import { styleText } from "node:util";
 import { prompt, displaySelectionMenu } from "./displaySelectionMenu.js";
 import OpenAI from "openai";
+
+// Load environment variables from .env file
+dotenv.config();
 
 // Access OpenAI API key
 const openai = new OpenAI({
