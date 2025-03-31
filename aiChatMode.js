@@ -318,7 +318,9 @@ export async function aiChatMode(topic) {
         topic: questionTopic,
       });
 
-      score += evaluation.percentage;
+      if (evaluation.status === "Correct") {
+        score++;
+      }
       currentQuestionIndex++;
 
       // Adjust difficulty in adaptive mode after every 3 questions
@@ -368,7 +370,7 @@ export async function aiChatMode(topic) {
     }
   }
 
-  const averageScore = score / totalQuestions;
+  const averageScore = (score / totalQuestions) * 100;
 
   console.clear();
   console.log(
@@ -473,7 +475,7 @@ export async function aiChatMode(topic) {
   // Return statistics for this session
   return {
     totalQuestions: totalQuestions,
-    correctAnswers: Math.round((score / 100) * totalQuestions), // Convert percentage score to questions
+    correctAnswers: score,
     averageScore: averageScore,
   };
 }
